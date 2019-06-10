@@ -168,12 +168,15 @@ public class Preprocessor {
 
                 ArrayList<org.datasetservice.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
 
+                
                 int percentageSpam = this.calculatePercentage(datasetFiles);
                 int percentageHam = 100 - percentageSpam;
+                System.out.println("PERCENTAGE SPAM"+ percentageSpam);
+                System.out.println("PERCENTAGE HAM"+ percentageHam);
                 Date dateFrom = this.calculateDateFrom(datasetFiles);
                 Date dateTo = this.calculateDateTo(datasetFiles);
 
-                datasetDAO.completeFields(datasetName, percentageHam, percentageSpam, dateFrom, dateTo);
+                datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
                 taskCreateUdatasetDAO.stablishLicense(task);
                 taskDAO.changeState(null, "success", task.getId());
                 try {
