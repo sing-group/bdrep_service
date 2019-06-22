@@ -1,12 +1,17 @@
 package org.datasetservice.preprocessor;
 
 import org.datasetservice.domain.TaskCreateSdataset;
+import org.datasetservice.domain.TaskCreateUPreprocessing;
 import org.datasetservice.domain.TaskCreateUdataset;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -16,16 +21,33 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 
-import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
+
 import org.bdp4j.pipe.AbstractPipe;
+import org.bdp4j.pipe.Pipe;
 import org.bdp4j.pipe.SerialPipes;
-import org.bdp4j.pipe.TargetAssigningPipe;
 import org.bdp4j.types.Instance;
+import org.bdp4j.util.Configurator;
 import org.bdp4j.util.InstanceListUtils;
-
-import org.ski4spam.pipe.impl.*;
-
+import org.bdp4j.util.PipeInfo;
+import org.bdp4j.util.PipeProvider;
+import org.ski4spam.pipe.impl.StoreFileExtensionPipe;
+import org.ski4spam.pipe.impl.TargetAssigningFromPathPipe;
+import org.ski4spam.pipe.impl.File2StringBufferPipe;
+import org.ski4spam.pipe.impl.GuessDateFromFilePipe;
+import org.ski4spam.pipe.impl.GuessLanguageFromStringBufferPipe;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 import org.datasetservice.dao.DatasetDAO;
 import org.datasetservice.dao.DatatypeDAO;
 import org.datasetservice.dao.FileDAO;
@@ -39,6 +61,12 @@ public class Preprocessor {
     private static String path;
 
     private static ArrayList<Instance> instances;
+
+    private static final String PIPELINE_PATH = "/home/ismael/Desarrollo/pipelines/";
+
+    private static final String DATASET_PATH = "/home/ismael/Desarrollo/datasets/";
+
+    private static final String OUTPUT_PATH = "/home/ismael/Desarrollo/output/";
 
     public Preprocessor(String path) {
         this.path = path;
@@ -61,10 +89,15 @@ public class Preprocessor {
             taskDAO.changeState(null, "executing", task.getId());
 
             generateInstances(pathDest);
+            
+            
             AbstractPipe p = new SerialPipes(new AbstractPipe[] { new TargetAssigningFromPathPipe(),
-                    new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(),
-                    new GuessLanguageFromStringBufferPipe() });
+                    new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe() });
+                    
+            //AbstractPipe p = new SerialPipes(new AbstractPipe[]{ new GuessDateFromFilePipe()});
+            
             p.pipeAll(instances);
+            
 
             for (Instance i : instances) {
                 org.datasetservice.domain.File file;
@@ -192,6 +225,101 @@ public class Preprocessor {
                 taskDAO.changeState("Not posible after filters", "failed", task.getId());
             }
 
+        return success;
+    }
+
+    public boolean preprocessDataset(TaskCreateUPreprocessing task)
+    {
+        boolean success = false;
+        String xmlPath = PIPELINE_PATH+task.getPreprocessDataset().getName()+task.getId()+".xml";
+        File file = new File(xmlPath);
+        TaskDAO taskDAO = new TaskDAO();
+
+        if(!file.exists())
+        {
+            FileOutputStream fos;
+            
+            try
+            {
+                fos = new FileOutputStream(file);
+                fos.write(task.getPipeline());
+                fos.close();
+            }
+            catch(FileNotFoundException ioException)
+            {
+                return success;
+            }
+            catch(IOException ioException)
+            {
+                return success;
+            }
+        }
+
+        
+        try
+        {
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document document = dBuilder.parse(file);
+
+            document.normalize();
+
+            NodeList configNodes = document.getElementsByTagName("general");
+            for(int i = 0; i<configNodes.getLength();i++)
+            {
+                Element element = (Element) configNodes.item(i);
+                element.getParentNode().removeChild(element);
+            }
+
+            Element rootNode = (Element)document.getElementsByTagName("configuration").item(0);
+            
+            Element general = document.createElement("general");
+            Element samplesFolder = document.createElement("samplesFolder");
+            samplesFolder.setTextContent(DATASET_PATH+task.getPreprocessDataset().getName());
+            Element outputDir = document.createElement("outputFolder");
+            outputDir.setTextContent(OUTPUT_PATH);
+            general.appendChild(samplesFolder);
+            general.appendChild(outputDir);
+            rootNode.appendChild(general);
+            
+
+            Transformer tf = TransformerFactory.newInstance().newTransformer();
+            tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+            tf.setOutputProperty(OutputKeys.INDENT, "yes");
+            Writer out = new StringWriter();
+            tf.transform(new DOMSource(document), new StreamResult(out));
+            
+            file.delete();
+            FileWriter fileWriter = new FileWriter(new File(xmlPath));
+            fileWriter.write(out.toString());
+            System.out.println(out.toString());
+            fileWriter.close();
+
+        }
+        catch(Exception e)
+        {
+
+        }
+        
+        Configurator configurator = Configurator.getInstance(xmlPath);
+
+        configurator.configureApp();
+
+        System.out.println(configurator.getProp(Configurator.SAMPLES_FOLDER));
+        System.out.println(configurator.getProp(Configurator.OUTPUT_FOLDER));
+
+        PipeProvider pipeProvider = new PipeProvider(configurator.getProp(Configurator.PLUGINS_FOLDER));
+        HashMap<String, PipeInfo> pipes = pipeProvider.getPipes();
+
+        Pipe p = configurator.configurePipeline(pipes);
+
+        generateInstances(configurator.getProp(Configurator.SAMPLES_FOLDER));
+
+        p.pipeAll(instances);
+        resetInstances();
+
+        taskDAO.changeState(null, "success", task.getId());
+        
         return success;
     }
 

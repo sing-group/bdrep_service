@@ -25,6 +25,7 @@ public class Main
 
         TaskCreateSdatasetDAO taskCreateSdatasetDAO = new TaskCreateSdatasetDAO(datasetDAO, taskDAO);
         TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(datasetDAO, taskDAO, languageDAO, licenseDAO, datatypeDAO);
+        TaskCreateUPreprocessingDAO taskCreateUPreprocessingDAO = new TaskCreateUPreprocessingDAO(datasetDAO, taskDAO);
 
         while(true)
         {
@@ -45,6 +46,13 @@ public class Main
                 String datasetName = task.getDataset().getName();
                 if(datasetName!=null)
                     preprocessor.preprocessUserTask(task);
+            }
+
+            ArrayList<TaskCreateUPreprocessing> waitingPreprocessingTasks = taskCreateUPreprocessingDAO.getWaitingTasksCreateUPreprocessingDAO();
+
+            for(TaskCreateUPreprocessing task : waitingPreprocessingTasks)
+            {
+                preprocessor.preprocessDataset(task);
             }
         }
         
