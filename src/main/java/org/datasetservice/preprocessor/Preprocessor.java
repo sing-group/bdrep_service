@@ -58,30 +58,41 @@ import org.datasetservice.dao.TaskDAO;
 
 public class Preprocessor {
 
-    private static String path;
-
     private static ArrayList<Instance> instances;
 
-    private static final String PIPELINE_PATH = "/home/ismael/Desarrollo/pipelines/";
+    private String url;
 
-    private static final String DATASET_PATH = "/home/ismael/Desarrollo/datasets/";
+    private String user;
 
-    private static final String OUTPUT_PATH = "/home/ismael/Desarrollo/output/";
+    private String password;
 
-    public Preprocessor(String path) {
-        this.path = path;
+    private String datasetStorage;
+
+    private String pipelineStorage;
+
+    private String outputStorage;
+
+
+
+    public Preprocessor(String url, String user, String password, String datasetStorage, String pipelineStorage, String outputStorage) {
         this.instances = new ArrayList<Instance>();
+        this.url = url;
+        this.user = user;
+        this.password = password;
+        this.datasetStorage = datasetStorage;
+        this.pipelineStorage = pipelineStorage;
+        this.outputStorage = outputStorage;
     }
 
     // TODO: Change all / for File.separator
     public boolean preprocessSystemTask(TaskCreateSdataset task) {
         boolean success = false;
         String datasetName = task.getDataset().getName();
-        String pathToDataset = path.concat("/" + datasetName + ".zip");
-        String pathDest = path.concat("/" + datasetName);
-        TaskDAO taskDAO = new TaskDAO();
-        DatasetDAO datasetDAO = new DatasetDAO();
-        FileDAO fileDAO = new FileDAO();
+        String pathToDataset = datasetStorage.concat("/" + datasetName + ".zip");
+        String pathDest = datasetStorage.concat("/" + datasetName);
+        TaskDAO taskDAO = new TaskDAO(url, user, password);
+        DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
+        FileDAO fileDAO = new FileDAO(url, user, password);
 
         if (Zip.unzip(pathToDataset, pathDest)) {
 
@@ -138,15 +149,14 @@ public class Preprocessor {
     public boolean preprocessUserTask(TaskCreateUdataset task) {
         boolean success = false;
 
-        DatasetDAO datasetDAO = new DatasetDAO();
-        TaskDAO taskDAO = new TaskDAO();
-        LanguageDAO languageDAO = new LanguageDAO();
-        LicenseDAO licenseDAO = new LicenseDAO();
-        DatatypeDAO datatypeDAO = new DatatypeDAO();
-        FileDAO fileDAO = new FileDAO();
+        DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
+        TaskDAO taskDAO = new TaskDAO(url, user, password);
+        LanguageDAO languageDAO = new LanguageDAO(url, user, password);
+        LicenseDAO licenseDAO = new LicenseDAO(url, user, password);
+        DatatypeDAO datatypeDAO = new DatatypeDAO(url, user, password);
+        FileDAO fileDAO = new FileDAO(url, user, password);
 
-        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(datasetDAO, taskDAO, languageDAO,
-                licenseDAO, datatypeDAO);
+        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(url, user, password);
 
             if (fileDAO.posibleAfterFilters(task)) {
                 ArrayList<org.datasetservice.domain.File> files = fileDAO.getRandomFiles(task,
@@ -163,13 +173,13 @@ public class Preprocessor {
                 }
 
                 String datasetName = task.getDataset().getName();
-                File newDirectory = new File(path + File.separator + datasetName);
+                File newDirectory = new File(datasetStorage + File.separator + datasetName);
 
                 if (!newDirectory.exists())
                     newDirectory.mkdir();
 
-                File newDirectorySpam = new File(path + File.separator + datasetName + File.separator + "_spam_");
-                File newDirectoryHam = new File(path + File.separator + datasetName + File.separator + "_ham_");
+                File newDirectorySpam = new File(datasetStorage + File.separator + datasetName + File.separator + "_spam_");
+                File newDirectoryHam = new File(datasetStorage + File.separator + datasetName + File.separator + "_ham_");
 
                 if (!newDirectorySpam.exists())
                     newDirectorySpam.mkdir();
@@ -231,9 +241,9 @@ public class Preprocessor {
     public boolean preprocessDataset(TaskCreateUPreprocessing task)
     {
         boolean success = false;
-        String xmlPath = PIPELINE_PATH+task.getPreprocessDataset().getName()+task.getId()+".xml";
+        String xmlPath = pipelineStorage+task.getPreprocessDataset().getName()+task.getId()+".xml";
         File file = new File(xmlPath);
-        TaskDAO taskDAO = new TaskDAO();
+        TaskDAO taskDAO = new TaskDAO(url, user, password);
 
         if(!file.exists())
         {
@@ -275,9 +285,9 @@ public class Preprocessor {
             
             Element general = document.createElement("general");
             Element samplesFolder = document.createElement("samplesFolder");
-            samplesFolder.setTextContent(DATASET_PATH+task.getPreprocessDataset().getName());
+            samplesFolder.setTextContent(datasetStorage+task.getPreprocessDataset().getName());
             Element outputDir = document.createElement("outputFolder");
-            outputDir.setTextContent(OUTPUT_PATH);
+            outputDir.setTextContent(outputStorage);
             general.appendChild(samplesFolder);
             general.appendChild(outputDir);
             rootNode.appendChild(general);

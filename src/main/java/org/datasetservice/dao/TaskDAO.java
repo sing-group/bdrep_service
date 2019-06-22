@@ -12,17 +12,24 @@ import org.datasetservice.domain.Task;
 
 public class TaskDAO {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
+
+    public TaskDAO(String url, String user, String password)
+    {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+    }
 
     public Task getTask(Long id)
     {
         Task task = null;
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM task where id=?")
         )
         {
@@ -46,7 +53,7 @@ public class TaskDAO {
 
     public void changeState(String message, String state, Long id)
     {
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("UPDATE task SET message = ?, state = ? where id = ?"))
         {
             preparedStatement.setString(1, message);

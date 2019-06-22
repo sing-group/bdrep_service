@@ -13,20 +13,18 @@ import org.datasetservice.domain.TaskCreateSdataset;
 
 public class TaskCreateSdatasetDAO {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
 
-    private DatasetDAO datasetDAO;
-
-    private TaskDAO taskDAO;
-
-    public TaskCreateSdatasetDAO(DatasetDAO datasetDAO, TaskDAO taskDAO)
+    public TaskCreateSdatasetDAO(String url, String user, String password)
     {
-        this.datasetDAO = datasetDAO;
-        this.taskDAO = taskDAO;
+        this.url = url;
+        this.user = user;
+        this.password = password;
+
     }
 
     //TODO: Rehacer esto con un join entre task, task_create_sdataset y dataset
@@ -35,7 +33,7 @@ public class TaskCreateSdatasetDAO {
         ArrayList<TaskCreateSdataset> waitingSystemTasks = new ArrayList<TaskCreateSdataset>();
 
         String query = "select t.id, t.message, t.state from task_create_sdataset sd inner join task t on t.id = sd.id where t.state='waiting'";
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery(query)
         )
@@ -43,6 +41,7 @@ public class TaskCreateSdatasetDAO {
 
             while(rs.next())
             {
+                DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
                 Dataset dataset = datasetDAO.getDatasetByTaskId(rs.getLong(1));
 
                 if(dataset != null)

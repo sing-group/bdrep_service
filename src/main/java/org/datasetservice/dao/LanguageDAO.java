@@ -12,14 +12,17 @@ import org.datasetservice.domain.Language;
 public class LanguageDAO
 {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
 
-    public LanguageDAO()
+    public LanguageDAO(String url, String user, String password)
     {
+        this.url = url;
+        this.user = user;
+        this.password = password;
 
     }
 
@@ -27,7 +30,7 @@ public class LanguageDAO
     {
         ArrayList<Language> languages = new ArrayList<Language>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("select * from taskcreateudataset_languages where task_id = ?"))
         {
             preparedStatement.setLong(1, id);

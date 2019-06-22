@@ -12,15 +12,17 @@ import org.datasetservice.domain.License;
 public class LicenseDAO
 {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
 
-    public LicenseDAO()
+    public LicenseDAO(String url,String user, String password)
     {
-
+        this.url = url;
+        this.user = user;
+        this.password = password;
     }
 
     //TODO: Implement this method
@@ -28,7 +30,7 @@ public class LicenseDAO
     {
         ArrayList<License> licenses = new ArrayList<License>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("select license from taskcreateudataset_licenses where task_id=?"))
         {
             preparedStatement.setLong(1, id);

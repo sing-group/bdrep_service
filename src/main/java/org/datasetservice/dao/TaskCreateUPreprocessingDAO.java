@@ -13,27 +13,23 @@ import org.datasetservice.domain.TaskCreateUPreprocessing;
 
 public class TaskCreateUPreprocessingDAO
 {
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
 
-    private final String USER = "springuser";
+    private String url;
+    private String user;
+    private String password;
 
-    private final String PASSWORD = "springpassword";
-
-    private DatasetDAO datasetDAO;
-
-    private TaskDAO taskDAO;
-
-    public TaskCreateUPreprocessingDAO(DatasetDAO datasetDAO, TaskDAO taskDAO)
+    public TaskCreateUPreprocessingDAO(String url, String user, String password)
     {
-        this.datasetDAO = datasetDAO;
-        this.taskDAO = taskDAO;
+        this.url = url;
+        this.user = user;
+        this.password = password;
     }
 
     public ArrayList<TaskCreateUPreprocessing> getWaitingTasksCreateUPreprocessingDAO()
     {
         ArrayList<TaskCreateUPreprocessing> tasks = new ArrayList<TaskCreateUPreprocessing>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("select t.id, state, description, pipeline, date, preprocess_dataset_name"+
          " from task_createupreprocessing tp inner join task t on tp.id=t.id where t.state='waiting'"))
         {

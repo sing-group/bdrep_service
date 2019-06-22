@@ -19,29 +19,18 @@ import org.datasetservice.domain.TaskCreateUdataset;
 
 public class TaskCreateUdatasetDAO {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
 
-    private DatasetDAO datasetDAO;
-
-    private TaskDAO taskDAO;
-
-    private LanguageDAO languageDAO;
-
-    private LicenseDAO licenseDAO;
-
-    private DatatypeDAO datatypeDAO;
-    
-    public TaskCreateUdatasetDAO(DatasetDAO datasetDAO, TaskDAO taskDAO, LanguageDAO languageDAO, LicenseDAO licenseDAO, DatatypeDAO datatypeDAO)
+    public TaskCreateUdatasetDAO(String url, String user, String password)
     {
-        this.datasetDAO = datasetDAO;
-        this.taskDAO = taskDAO;
-        this.languageDAO = languageDAO;
-        this.licenseDAO = licenseDAO;
-        this.datatypeDAO = datatypeDAO;
+        this.url = url;
+        this.user = user;
+        this.password = password;
+
     }
 
     public ArrayList<TaskCreateUdataset> getWaitingUserTasks()
@@ -54,7 +43,7 @@ public class TaskCreateUdatasetDAO {
         "ud.limit_spam_percentage_tytb, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"+
         "ud.limit_number_of_files, ud.limit_percentage_spam, ud.spam_mode, ud.date_to, ud.date_from "
         + "from task_create_udataset ud inner join task t on t.id = ud.id where t.state='waiting'";
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         Statement st = connection.createStatement();
         ResultSet rs = st.executeQuery(query)
         )
@@ -62,6 +51,7 @@ public class TaskCreateUdatasetDAO {
 
             while(rs.next())
             {
+                DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
                 Dataset dataset = datasetDAO.getDatasetByTaskId(rs.getLong(1));
 
                 if(dataset != null)
@@ -73,6 +63,10 @@ public class TaskCreateUdatasetDAO {
                     int limitNumberOfFiles = rs.getInt(14);
                     Date dateFrom = rs.getDate(18);
                     Date dateTo = rs.getDate(17);
+
+                    LanguageDAO languageDAO = new LanguageDAO(url, user, password);
+                    LicenseDAO licenseDAO = new LicenseDAO(url, user, password);
+                    DatatypeDAO datatypeDAO = new DatatypeDAO(url, user, password);
 
                     ArrayList<Language> languages = languageDAO.getLanguages(taskId);
                     ArrayList<License> licenses = licenseDAO.getLicenses(taskId);
@@ -143,7 +137,7 @@ public class TaskCreateUdatasetDAO {
 
         String updateQuery = "update dataset set id=? where task_id=?";
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement(query);
         PreparedStatement preparedStatementUpdate = connection.prepareStatement(updateQuery))
         {

@@ -17,11 +17,20 @@ import org.datasetservice.domain.TaskCreateUdataset;
 
 public class FileDAO {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
+
+    public FileDAO(String url, String user, String password)
+    {
+
+        this.url = url;
+        this.user = user;
+        this.password = password;
+
+    }
 
     public File getFile(Long id) throws Exception {
         return null;
@@ -35,7 +44,7 @@ public class FileDAO {
         String path = file.getPath();
         String type = file.getType();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("insert into file(date, extension, language, path, type) values(?, ?, ?, ?, ?)"
         , Statement.RETURN_GENERATED_KEYS);
         PreparedStatement preparedStatement2 = connection.prepareStatement("insert into dataset_files(dataset_name, file_id) values(?, ?)");)
@@ -104,7 +113,7 @@ public class FileDAO {
         Long id = file.getId();
         String datasetName = dataset.getName();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_files(dataset_name, file_id) values(?, ?)");
         PreparedStatement preparedStatement2 = connection.prepareStatement("select * from file where id = ?")
         )
@@ -141,7 +150,7 @@ public class FileDAO {
         ArrayList<File> datasetFiles = new ArrayList<File>();
         String query = "select date, extension, language, path, type from file f inner join dataset_files df on f.id=df.file_id where df.dataset_name=?";
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement(query);)
         {
             preparedStatement.setString(1, datasetName);
@@ -180,7 +189,7 @@ public class FileDAO {
             int necesarySpam = (int) Math.ceil((double) fileLimit * ((double) task.getLimitPercentageSpam()/100.00));
             int necesaryHam = fileLimit - necesarySpam;
 
-            try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+            try(Connection connection = DriverManager.getConnection(url, user, password);
             PreparedStatement preparedStatement = connection.prepareStatement(query))
             {
                 preparedStatement.setString(1, "spam");
@@ -233,7 +242,7 @@ public class FileDAO {
         int[] necesaryFiles = new int[]{necesaryHamEml, necesaryHamTwtid, necesaryHamTsms, necesaryHamTytb, necesaryHamWarc, necesarySpamEml, necesarySpamTwtid,
             necesarySpamTsms, necesarySpamTytb, necesarySpamWarc};
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement(query))
          {
             for(int i = 0; i<types.length;i++)
@@ -299,7 +308,7 @@ public class FileDAO {
         String query = createQuery(task, extension, type, necesary);
         boolean success = true;
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement(query))
         {
             preparedStatement.setString(1, extension);
@@ -395,7 +404,7 @@ public class FileDAO {
     {
         System.out.println("----------------------------------------------------------------");
         System.out.println(language);
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_languages(dataset_name, language) values(?, ?)");)
         {
             preparedStatement.setString(1, datasetName);
@@ -413,7 +422,7 @@ public class FileDAO {
     {
         System.out.println("----------------------------------------------------------------");
         System.out.println(datatype);
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_datatypes(dataset_name, data_type) values(?, ?)"))
         {
             preparedStatement.setString(1, datasetName);

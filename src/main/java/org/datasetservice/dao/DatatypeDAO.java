@@ -12,14 +12,17 @@ import org.datasetservice.domain.Datatype;
 public class DatatypeDAO
 {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
-
-    private final String USER = "springuser";
-
-    private final String PASSWORD = "springpassword";
+    private String url;
     
-    public DatatypeDAO()
+    private String user;
+    
+    private String password;
+    
+    public DatatypeDAO(String url, String user, String password)
     {
+        this.url = url;
+        this.user = user;
+        this.password = password;
 
     }
 
@@ -28,7 +31,7 @@ public class DatatypeDAO
     {
         ArrayList<Datatype> datatypes = new ArrayList<Datatype>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("select * from taskcreateudataset_datatypes where task_id=?"))
         {
             preparedStatement.setLong(1, id);

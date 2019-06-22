@@ -13,17 +13,25 @@ import org.datasetservice.domain.File;
 
 public class DatasetDAO {
 
-    private final String URL = "jdbc:mysql://localhost:3306/onlinepreprocessor";
+    private String url;
 
-    private final String USER = "springuser";
+    private String user;
 
-    private final String PASSWORD = "springpassword";
+    private String password;
+
+    public DatasetDAO(String url, String user, String password)
+    {
+        this.url = url;
+        this.user = user;
+        this.password = password;
+
+    }
 
     public Dataset getDatasetByTaskId(Long id) {
 
         Dataset dataset = new Dataset();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from dataset where task_id=?");
         )
         {
@@ -48,7 +56,7 @@ public class DatasetDAO {
     {
         ArrayList<Dataset> datasets = new ArrayList<Dataset>();
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("select dataset from task_create_udataset_datasets where task_id=?"))
         {
 
@@ -76,7 +84,7 @@ public class DatasetDAO {
     public void setAvailable(String name, boolean available)
     {
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("update dataset set available=? where name=?");)
         {
             preparedStatement.setBoolean(1, available);
@@ -94,7 +102,7 @@ public class DatasetDAO {
     public void completeFields(String datasetName, int spamPercentage, int hamPercentage, Date dateFrom, Date dateTo)
     {
 
-        try(Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);
+        try(Connection connection = DriverManager.getConnection(url, user, password);
         PreparedStatement preparedStatement = connection.prepareStatement("update dataset set spam_percentage = ?, ham_percentage = ?, first_file_date = ?, last_file_date = ? where name = ?"))
         {
             preparedStatement.setInt(1, spamPercentage);
