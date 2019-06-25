@@ -15,14 +15,32 @@ import org.datasetservice.domain.File;
 import org.datasetservice.domain.Language;
 import org.datasetservice.domain.TaskCreateUdataset;
 
+/**
+ * Data access object for File 
+ */
 public class FileDAO {
 
+    /**
+     * The connection url to the database
+     */
     private String url;
 
+    /**
+     * The user of the database
+     */
     private String user;
 
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of DatasetDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public FileDAO(String url, String user, String password)
     {
 
@@ -32,10 +50,11 @@ public class FileDAO {
 
     }
 
-    public File getFile(Long id) throws Exception {
-        return null;
-    }
-
+    /**
+     * Insert the specified file in the specified dataset
+     * @param file the file to insert 
+     * @param dataset the dataset 
+     */
     public void insertDatasetFile(File file, Dataset dataset) 
     {
         Date date = file.getDate();
@@ -103,11 +122,15 @@ public class FileDAO {
         }
         catch(SQLException sqlException)
         {
-            //TODO: connection.rollback()
         }     
 
     }
 
+    /**
+     * Insert the specified file to the specified dataset
+     * @param file the specified file
+     * @param dataset the specified dataset
+     */
     public void insertFileById(File file, Dataset dataset)
     {
         Long id = file.getId();
@@ -140,10 +163,15 @@ public class FileDAO {
         }
         catch(SQLException sqlException)
         {
-            //TODO: connection.rollback()
+            
         }
     }
 
+    /**
+     * Return a list of files associated to the specified dataset
+     * @param datasetName the name of the dataset
+     * @return a list of files associated to the specified dataset
+     */
     public ArrayList<File> getDatasetFiles(String datasetName)
     {
 
@@ -177,6 +205,12 @@ public class FileDAO {
         return datasetFiles;
     }
 
+    /**
+     * Return a list of random files
+     * @param task the user task 
+     * @param spamMode the creation mode
+     * @return a list of random files
+     */
     public ArrayList<File> getRandomFiles(TaskCreateUdataset task, boolean spamMode)
     {
         ArrayList<File> files = new ArrayList<File>();
@@ -270,6 +304,11 @@ public class FileDAO {
         return files;
     }
 
+    /**
+     * Check if the task is posible after apply filters
+     * @param task the specified task
+     * @return true if posible, false if not posible
+     */
     public boolean posibleAfterFilters(TaskCreateUdataset task)
     {
         boolean posible = true;
@@ -303,6 +342,14 @@ public class FileDAO {
         return posible;
     }
 
+    /**
+     * Return true if sufficiente files, false if not
+     * @param task the user task
+     * @param extension the extension
+     * @param type the type
+     * @param necesary the necesary files
+     * @return true if sufficiente files, false if not
+     */
     private boolean sufficientFiles(TaskCreateUdataset task, String extension, String type, int necesary)
     {
         String query = createQuery(task, extension, type, necesary);
@@ -329,6 +376,12 @@ public class FileDAO {
         return success;
     }
 
+    /**
+     * Dynamically generates a query for random files
+     * @param task the specified task
+     * @param spamMode the creation mode
+     * @return a query for random files
+     */
     private String createQueryRandomFiles(TaskCreateUdataset task, boolean spamMode)
     {
         Long id = task.getId();
@@ -366,6 +419,14 @@ public class FileDAO {
         return query;
     }
 
+    /**
+     * Create a query for specified user task
+     * @param task the specified task
+     * @param extension the specified extension
+     * @param type the specified type
+     * @param necesary the necesary files
+     * @return a query for specified user task
+     */
     private String createQuery(TaskCreateUdataset task, String extension, String type, int necesary)
     {
         Long id = task.getId();
@@ -400,6 +461,11 @@ public class FileDAO {
 
     }
 
+    /**
+     * Insert a language for the dataset
+     * @param datasetName the name of the dataset
+     * @param language the language
+     */
     private void insertLanguageFile(String datasetName, String language)
     {
         System.out.println("----------------------------------------------------------------");
@@ -418,6 +484,11 @@ public class FileDAO {
         }
     }
 
+    /**
+     * Insert a datatype for the dataset
+     * @param datasetName the dataset name
+     * @param datatype the datatype
+     */
     private void insertDatatypeFile(String datasetName, String datatype)
     {
         System.out.println("----------------------------------------------------------------");

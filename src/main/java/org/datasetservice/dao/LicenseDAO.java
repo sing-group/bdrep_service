@@ -9,15 +9,32 @@ import java.util.ArrayList;
 
 import org.datasetservice.domain.License;
 
+/**
+ * Data access object for Language 
+ */
 public class LicenseDAO
 {
-
+    /**
+     * The connection url to the database
+     */
     private String url;
 
+    /**
+     * The user of the database
+     */
     private String user;
 
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of DatasetDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public LicenseDAO(String url,String user, String password)
     {
         this.url = url;
@@ -25,7 +42,12 @@ public class LicenseDAO
         this.password = password;
     }
 
-    //TODO: Implement this method
+    
+    /**
+     * Return a list of licenses for the specified user task
+     * @param id the id of the user task
+     * @return a list of the licenses for the specified user task
+     */
     public ArrayList<License> getLicenses(Long id)
     {
         ArrayList<License> licenses = new ArrayList<License>();

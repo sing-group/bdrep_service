@@ -1,16 +1,15 @@
 package org.datasetservice;
 
 import java.io.FileInputStream;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.datasetservice.dao.*;
-import org.datasetservice.domain.*;
+import org.datasetservice.dao.TaskCreateSdatasetDAO;
+import org.datasetservice.dao.TaskCreateUPreprocessingDAO;
+import org.datasetservice.dao.TaskCreateUdatasetDAO;
+import org.datasetservice.domain.TaskCreateSdataset;
+import org.datasetservice.domain.TaskCreateUPreprocessing;
+import org.datasetservice.domain.TaskCreateUdataset;
 import org.datasetservice.preprocessor.Preprocessor;
 
 public class Main
@@ -63,6 +62,12 @@ public class Main
         
     }
 
+    /**
+     * Take the specified property of the properties file
+     * @param key the key of the property
+     * @return a String with the value of the property
+     * @throws Exception
+     */
     private static String chargeProperty(String key) throws Exception
     {
         Properties properties = new Properties();

@@ -9,15 +9,32 @@ import java.util.ArrayList;
 
 import org.datasetservice.domain.Datatype;
 
+/**
+ * Datatype data access object
+ */
 public class DatatypeDAO
 {
-
+    /**
+     * The connection url to the database
+     */
     private String url;
     
+    /**
+     * The user of the database
+     */
     private String user;
     
+    /**
+     * The password for the database
+     */
     private String password;
     
+   /**
+     * A constructor for create instances of DatatypeDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public DatatypeDAO(String url, String user, String password)
     {
         this.url = url;
@@ -26,7 +43,11 @@ public class DatatypeDAO
 
     }
 
-    //TODO: Implement this method
+    /**
+     * Return a list of the datatypes associated a user task
+     * @param id the id of the user task
+     * @return a list of the datatypes associated a user task
+     */
     public ArrayList<Datatype> getDatatypes(Long id)
     {
         ArrayList<Datatype> datatypes = new ArrayList<Datatype>();

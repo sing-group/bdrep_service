@@ -9,16 +9,33 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import org.datasetservice.domain.Dataset;
-import org.datasetservice.domain.File;
 
+/**
+ * Data access object for Dataset 
+ */
 public class DatasetDAO {
 
+    /**
+     * The connection url to the database
+     */
     private String url;
 
+    /**
+     * The user of the database
+     */
     private String user;
 
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of DatasetDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public DatasetDAO(String url, String user, String password)
     {
         this.url = url;
@@ -27,6 +44,11 @@ public class DatasetDAO {
 
     }
 
+    /**
+     * Return dataset associated to the specified task
+     * @param id the id of the task
+     * @return dataset associated to the specified task
+     */
     public Dataset getDatasetByTaskId(Long id) {
 
         Dataset dataset = new Dataset();
@@ -51,7 +73,12 @@ public class DatasetDAO {
         return dataset;
     }
 
-    //TODO: Implement this method
+    
+    /**
+     * Return the datasets associated to the specified task
+     * @param id the id of the task
+     * @return a list of the datasets associated to the specified task
+     */
     public ArrayList<Dataset> getDatasetsUserTask(Long id)
     {
         ArrayList<Dataset> datasets = new ArrayList<Dataset>();
@@ -81,6 +108,11 @@ public class DatasetDAO {
         return datasets;
     }
 
+    /**
+     * Stablish true the specified dataset
+     * @param name the name of the dataset
+     * @param available the state of the dataset
+     */
     public void setAvailable(String name, boolean available)
     {
 
@@ -99,6 +131,14 @@ public class DatasetDAO {
 
     }
 
+    /**
+     * Complete the fields of the specified dataset
+     * @param datasetName the name of the dataset
+     * @param spamPercentage the spam percentage of the dataset
+     * @param hamPercentage the ham percentage of the dataset
+     * @param dateFrom the initial date of the messages of the dataset
+     * @param dateTo the final date of the messages of the dataset
+     */
     public void completeFields(String datasetName, int spamPercentage, int hamPercentage, Date dateFrom, Date dateTo)
     {
 

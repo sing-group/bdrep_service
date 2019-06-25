@@ -11,13 +11,32 @@ import java.util.Date;
 import org.datasetservice.domain.Dataset;
 import org.datasetservice.domain.TaskCreateUPreprocessing;
 
+/**
+ * The preprocessing tasks data access object
+ */
 public class TaskCreateUPreprocessingDAO
 {
-
+    /**
+     * The connection url to the database
+     */
     private String url;
+
+    /**
+     * The user of the database
+     */
     private String user;
+
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of TaskCreateUPreprocessingDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public TaskCreateUPreprocessingDAO(String url, String user, String password)
     {
         this.url = url;
@@ -25,6 +44,10 @@ public class TaskCreateUPreprocessingDAO
         this.password = password;
     }
 
+    /**
+     * Return the waiting preprocessing tasks
+     * @return the waiting preprocessing tasks
+     */
     public ArrayList<TaskCreateUPreprocessing> getWaitingTasksCreateUPreprocessingDAO()
     {
         ArrayList<TaskCreateUPreprocessing> tasks = new ArrayList<TaskCreateUPreprocessing>();

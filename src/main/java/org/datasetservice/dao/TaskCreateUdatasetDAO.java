@@ -13,18 +13,34 @@ import org.datasetservice.domain.Dataset;
 import org.datasetservice.domain.Datatype;
 import org.datasetservice.domain.Language;
 import org.datasetservice.domain.License;
-import org.datasetservice.domain.Task;
-import org.datasetservice.domain.TaskCreateSdataset;
 import org.datasetservice.domain.TaskCreateUdataset;
 
+/**
+ * The user tasks data access object
+ */
 public class TaskCreateUdatasetDAO {
 
+     /**
+     * The connection url to the database
+     */
     private String url;
 
+    /**
+     * The user of the database
+     */
     private String user;
 
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of TaskCreateUDatasetDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public TaskCreateUdatasetDAO(String url, String user, String password)
     {
         this.url = url;
@@ -33,6 +49,10 @@ public class TaskCreateUdatasetDAO {
 
     }
 
+    /**
+     * Return a list of the waiting user tasks
+     * @return a list of the waiting user tasks
+     */
     public ArrayList<TaskCreateUdataset> getWaitingUserTasks()
     {
         ArrayList<TaskCreateUdataset> waitingUtasks = new ArrayList<TaskCreateUdataset>();
@@ -90,29 +110,6 @@ public class TaskCreateUdatasetDAO {
 
                     boolean spamMode = rs.getBoolean(16);
 
-                    //TODO: Delete this test prints
-                    /**
-                     * for(Language language : languages)
-                    {
-                        System.out.println(language.getLanguage());
-                    }
-
-                    for(License license : licenses)
-                    {
-                        System.out.println(license.getName());
-                    }
-
-                    for(Datatype datatype : datatypes)
-                    {
-                        System.out.println(datatype.getDatatype());
-                    }
-
-                    for(Dataset datasetName : datasets)
-                    {
-                        System.out.println(datasetName.getName());
-                    }
-                     */
-
                     TaskCreateUdataset taskCreateUdataset = new TaskCreateUdataset(taskId, dataset, state, message, limitPercentageSpam, limitNumberOfFiles,
                      dateFrom, dateTo, languages, datatypes, licenses, datasets, limitSpamPercentageEml, limitHamPercentageEml, limitSpamPercentageWarc,
                       limitHamPercentageWarc, limitSpamPercentageTytb, limitHamPercentageTytb, limitSpamPercentageTsms, limitHamPercentageTsms, limitSpamPercentageTwtid,
@@ -130,6 +127,10 @@ public class TaskCreateUdatasetDAO {
         return waitingUtasks;
     }
 
+    /**
+     * Stablish the license of the specified user task
+     * @param task the task to stablish the license
+     */
     public void stablishLicense(TaskCreateUdataset task)
     {
         String query = "select l.name, l.restriction_level from license l inner join dataset d on l.name=d.id "+

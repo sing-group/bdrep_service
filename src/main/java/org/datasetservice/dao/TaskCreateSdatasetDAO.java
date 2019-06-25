@@ -2,23 +2,38 @@ package org.datasetservice.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
 import org.datasetservice.domain.Dataset;
-import org.datasetservice.domain.Task;
 import org.datasetservice.domain.TaskCreateSdataset;
 
+/**
+ * Data access object for system tasks
+ */
 public class TaskCreateSdatasetDAO {
-
+    /**
+     * The connection url to the database
+     */
     private String url;
 
+    /**
+     * The user of the database
+     */
     private String user;
 
+    /**
+     * The password for the database
+     */
     private String password;
 
+    /**
+     * A constructor for create instances of DatasetDAO
+     * @param url The connection url to the database
+     * @param user The user of the database
+     * @param password The password for the database
+     */
     public TaskCreateSdatasetDAO(String url, String user, String password)
     {
         this.url = url;
@@ -27,7 +42,11 @@ public class TaskCreateSdatasetDAO {
 
     }
 
-    //TODO: Rehacer esto con un join entre task, task_create_sdataset y dataset
+    /**
+     * Return a list of the waiting system tasks
+     * @return a list of the waiting system tasks
+     * @throws Exception
+     */
     public ArrayList<TaskCreateSdataset> getWaitingSystemTasks() throws Exception 
     {
         ArrayList<TaskCreateSdataset> waitingSystemTasks = new ArrayList<TaskCreateSdataset>();

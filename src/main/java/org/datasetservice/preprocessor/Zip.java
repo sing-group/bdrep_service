@@ -5,21 +5,24 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.datasetservice.domain.Dataset;
-
+/**
+ * Class for perform zip an unzip operations
+ */
 public class Zip
 {
 
+    /**
+     * Zips a folder in the correct format
+     * @param path the path of the file to compress
+     */
     public static void zip(String path)
     {
         File zipFile = new File(path.concat(".zip"));
@@ -78,6 +81,12 @@ public class Zip
         }
     }
 
+    /**
+     * Unzip the specified file in the specified folder
+     * @param path the file path
+     * @param destPath the destination folder
+     * @return true if successfull, false in other case
+     */
     public static boolean unzip(String path, String destPath)
     {
         boolean success = true;
@@ -171,6 +180,10 @@ public class Zip
         return success;
     }
 
+    /**
+     * Delete a zip file
+     * @param pathToDataset path of the zip file
+     */
     public static void delete(String pathToDataset)
     {
         File zipToDelete = new File(pathToDataset);
@@ -178,6 +191,11 @@ public class Zip
         zipToDelete.delete();
     }
 
+    /**
+     * Checks if the zip file format is correct
+     * @param zipEntries the entries of the zip
+     * @return true if it's correct, false in other case
+     */
     private static boolean checkFormat(Enumeration<?> zipEntries)
     {
         boolean success = true;

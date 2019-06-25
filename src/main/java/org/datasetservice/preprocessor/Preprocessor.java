@@ -1,9 +1,5 @@
 package org.datasetservice.preprocessor;
 
-import org.datasetservice.domain.TaskCreateSdataset;
-import org.datasetservice.domain.TaskCreateUPreprocessing;
-import org.datasetservice.domain.TaskCreateUdataset;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,13 +8,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.annotation.Annotation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.sql.SQLException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,51 +23,82 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-
 import org.bdp4j.pipe.AbstractPipe;
 import org.bdp4j.pipe.Pipe;
 import org.bdp4j.pipe.SerialPipes;
 import org.bdp4j.types.Instance;
 import org.bdp4j.util.Configurator;
-import org.bdp4j.util.InstanceListUtils;
 import org.bdp4j.util.PipeInfo;
 import org.bdp4j.util.PipeProvider;
-import org.ski4spam.pipe.impl.StoreFileExtensionPipe;
-import org.ski4spam.pipe.impl.TargetAssigningFromPathPipe;
+import org.datasetservice.dao.DatasetDAO;
+import org.datasetservice.dao.FileDAO;
+import org.datasetservice.dao.TaskCreateUdatasetDAO;
+import org.datasetservice.dao.TaskDAO;
+import org.datasetservice.domain.TaskCreateSdataset;
+import org.datasetservice.domain.TaskCreateUPreprocessing;
+import org.datasetservice.domain.TaskCreateUdataset;
 import org.ski4spam.pipe.impl.File2StringBufferPipe;
 import org.ski4spam.pipe.impl.GuessDateFromFilePipe;
 import org.ski4spam.pipe.impl.GuessLanguageFromStringBufferPipe;
+import org.ski4spam.pipe.impl.StoreFileExtensionPipe;
+import org.ski4spam.pipe.impl.TargetAssigningFromPathPipe;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
-import org.datasetservice.dao.DatasetDAO;
-import org.datasetservice.dao.DatatypeDAO;
-import org.datasetservice.dao.FileDAO;
-import org.datasetservice.dao.LanguageDAO;
-import org.datasetservice.dao.LicenseDAO;
-import org.datasetservice.dao.TaskCreateUdatasetDAO;
-import org.datasetservice.dao.TaskDAO;
 
+/**
+ * Class for perform system, user and preprocessing tasks
+ */
 public class Preprocessor {
 
+    /**
+     * The file instances
+     */
     private static ArrayList<Instance> instances;
 
+    /**
+     * The url to access the database
+     */
     private String url;
 
+    /**
+     * The user to access the database
+     */
     private String user;
 
+    /**
+     * The password to access the database
+     */
     private String password;
 
+    /**
+     * The path of the dataset storage in file system
+     */
     private String datasetStorage;
 
+    /**
+     * The path of the pipeline storage in file system
+     */
     private String pipelineStorage;
 
+    /**
+     * The path of the output storage in file system
+     */
     private String outputStorage;
 
 
 
+    /**
+     * Constructor for create instances of preprocessor objects
+     * @param url the url to connect the database
+     * @param user the user of the database
+     * @param password the password of the database
+     * @param datasetStorage the path to the dataset storage
+     * @param pipelineStorage the path to the pipeline storage
+     * @param outputStorage the path to the csv storage
+     */
     public Preprocessor(String url, String user, String password, String datasetStorage, String pipelineStorage, String outputStorage) {
-        this.instances = new ArrayList<Instance>();
+        instances = new ArrayList<Instance>();
         this.url = url;
         this.user = user;
         this.password = password;
@@ -84,7 +107,11 @@ public class Preprocessor {
         this.outputStorage = outputStorage;
     }
 
-    // TODO: Change all / for File.separator
+    /**
+     * Execute a system task, extracting all metadata of the dataset and inserting in the database
+     * @param task the system task
+     * @return true if successfully completed, false in other case
+     */
     public boolean preprocessSystemTask(TaskCreateSdataset task) {
         boolean success = false;
         String datasetName = task.getDataset().getName();
@@ -105,7 +132,6 @@ public class Preprocessor {
             AbstractPipe p = new SerialPipes(new AbstractPipe[] { new TargetAssigningFromPathPipe(),
                     new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe() });
                     
-            //AbstractPipe p = new SerialPipes(new AbstractPipe[]{ new GuessDateFromFilePipe()});
             
             p.pipeAll(instances);
             
@@ -132,7 +158,6 @@ public class Preprocessor {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
             }
             datasetDAO.setAvailable(datasetName, true);
@@ -146,14 +171,16 @@ public class Preprocessor {
         return success;
     }
 
+    /**
+     * Execute a user task, combining datasets for generate a new one
+     * @param task the user task
+     * @return true if successfully completed, false in other case
+     */
     public boolean preprocessUserTask(TaskCreateUdataset task) {
         boolean success = false;
 
         DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
         TaskDAO taskDAO = new TaskDAO(url, user, password);
-        LanguageDAO languageDAO = new LanguageDAO(url, user, password);
-        LicenseDAO licenseDAO = new LicenseDAO(url, user, password);
-        DatatypeDAO datatypeDAO = new DatatypeDAO(url, user, password);
         FileDAO fileDAO = new FileDAO(url, user, password);
 
         TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(url, user, password);
@@ -225,7 +252,6 @@ public class Preprocessor {
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
                 datasetDAO.setAvailable(task.getDataset().getName(), true);
@@ -238,6 +264,11 @@ public class Preprocessor {
         return success;
     }
 
+    /**
+     * Execute preprocessing task, generating csv in output folder
+     * @param task the task to execute
+     * @return true if successfully completed, false in other case
+     */
     public boolean preprocessDataset(TaskCreateUPreprocessing task)
     {
         boolean success = false;
@@ -381,11 +412,19 @@ public class Preprocessor {
         }
     }
 
+    /**
+     * Reset static instances
+     */
     private static void resetInstances() {
         ArrayList<Instance> emptyInstances = new ArrayList<Instance>();
         instances = emptyInstances;
     }
 
+    /**
+     * Obtain data of an instance
+     * @param i the instance
+     * @return the generated file based on instance data
+     */
     private org.datasetservice.domain.File retrieveInstanceData(Instance i) {
         try {
             String path = i.getName().toString();
@@ -410,6 +449,11 @@ public class Preprocessor {
 
     }
 
+    /**
+     * Calculate percentage of spam for the specified files
+     * @param datasetFiles the files of the dataset
+     * @return the percentage of spam
+     */
     private int calculatePercentage(ArrayList<org.datasetservice.domain.File> datasetFiles) {
         int total = datasetFiles.size();
         int spamFiles = 0;
@@ -426,6 +470,11 @@ public class Preprocessor {
         return spamPercentage;
     }
 
+    /**
+     * Calculate initial messages date
+     * @param datasetFiles the dataset files
+     * @return the initial messages date
+     */
     private Date calculateDateFrom(ArrayList<org.datasetservice.domain.File> datasetFiles) {
         Date actualDate = new Date(Long.MAX_VALUE);
 
@@ -441,6 +490,11 @@ public class Preprocessor {
         return actualDate;
     }
 
+    /**
+     * Calculate final messages date
+     * @param datasetFiles the dataset files
+     * @return the final messages date
+     */
     private Date calculateDateTo(ArrayList<org.datasetservice.domain.File> datasetFiles) {
         Date actualDate = new Date(Long.MIN_VALUE);
 
