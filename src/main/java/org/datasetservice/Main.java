@@ -1,5 +1,6 @@
 package org.datasetservice;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.Properties;
@@ -17,12 +18,14 @@ public class Main
 
     public static void main(String[] args) throws Exception
     {
-        String url = chargeProperty("url");
-        String user = chargeProperty("user");
-        String password = chargeProperty("password");
-        String datasetStorage = chargeProperty("datasetStorage");
-        String pipelineStorage = chargeProperty("pipelineStorage");
-        String outputStorage = chargeProperty("outputStorage");
+        Main main = new Main();
+
+        String url = main.chargeProperty("url");
+        String user = main.chargeProperty("user");
+        String password = main.chargeProperty("password");
+        String datasetStorage = main.chargeProperty("datasetStorage");
+        String pipelineStorage = main.chargeProperty("pipelineStorage");
+        String outputStorage = main.chargeProperty("outputStorage");
         
         Preprocessor preprocessor = new Preprocessor(url, user, password, datasetStorage, pipelineStorage, outputStorage);
 
@@ -68,14 +71,16 @@ public class Main
      * @return a String with the value of the property
      * @throws Exception
      */
-    private static String chargeProperty(String key) throws Exception
+    private String chargeProperty(String key) throws Exception
     {
         Properties properties = new Properties();
         String toRet = "";
 
-        properties.load(new FileInputStream("service.properties"));
+        ClassLoader classLoader = getClass().getClassLoader();
+        properties.load(classLoader.getResourceAsStream("service.properties"));
         toRet = properties.getProperty(key);
 
         return toRet;
     }
+
 }
