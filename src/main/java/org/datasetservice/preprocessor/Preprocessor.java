@@ -245,6 +245,8 @@ public class Preprocessor {
         File file = new File(xmlPath);
         TaskDAO taskDAO = new TaskDAO(url, user, password);
 
+        taskDAO.changeState(null, "executing", task.getId());
+
         if(!file.exists())
         {
             FileOutputStream fos;
@@ -328,7 +330,17 @@ public class Preprocessor {
         p.pipeAll(instances);
         resetInstances();
 
-        taskDAO.changeState(null, "success", task.getId());
+        File csv = new File(outputStorage+"output.csv");
+
+        if(csv.renameTo(new File(outputStorage+task.getPreprocessDataset().getName()+task.getId()+".csv")))
+        {
+            taskDAO.changeState(null, "success", task.getId());
+        }
+        else
+        {
+            taskDAO.changeState(null, "failed", task.getId());
+        }
+        
         
         return success;
     }

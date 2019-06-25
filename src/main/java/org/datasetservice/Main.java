@@ -24,12 +24,6 @@ public class Main
         String datasetStorage = chargeProperty("datasetStorage");
         String pipelineStorage = chargeProperty("pipelineStorage");
         String outputStorage = chargeProperty("outputStorage");
-
-        DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
-        TaskDAO taskDAO = new TaskDAO(url, user, password);
-        LanguageDAO languageDAO = new LanguageDAO(url, user, password);
-        LicenseDAO licenseDAO = new LicenseDAO(url, user, password);
-        DatatypeDAO datatypeDAO = new DatatypeDAO(url, user, password);
         
         Preprocessor preprocessor = new Preprocessor(url, user, password, datasetStorage, pipelineStorage, outputStorage);
 
