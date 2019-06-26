@@ -26,8 +26,8 @@ public class Zip
     public static void zip(String path)
     {
         File zipFile = new File(path.concat(".zip"));
-        File dirHam = new File(path+File.separator+"_ham_/");
-        File dirSpam = new File(path+File.separator+"_spam_/");
+        File dirHam = new File(path+File.separator+"_ham_"+File.separator);
+        File dirSpam = new File(path+File.separator+"_spam_"+File.separator);
 
         System.out.println(zipFile.getAbsolutePath());
         System.out.println(dirHam.getAbsolutePath());
@@ -43,7 +43,7 @@ public class Zip
             fos = new FileOutputStream(zipFile);
             zos = new ZipOutputStream(fos);
 
-            zos.putNextEntry(new ZipEntry("_ham_/"));
+            zos.putNextEntry(new ZipEntry("_ham_"+File.separator));
 
             for(File fileHam : dirHam.listFiles())
             {
@@ -58,7 +58,7 @@ public class Zip
             }
             zos.closeEntry();
 
-            zos.putNextEntry(new ZipEntry("_spam_/"));
+            zos.putNextEntry(new ZipEntry("_spam_"+File.separator));
 
             for(File fileSpam : dirSpam.listFiles())
             {
@@ -200,8 +200,8 @@ public class Zip
     {
         boolean success = true;
         ArrayList<String> necesaryEntries = new ArrayList<String>();
-        necesaryEntries.add("_ham_/");
-        necesaryEntries.add("_spam_/");
+        necesaryEntries.add("_ham_"+File.separator);
+        necesaryEntries.add("_spam_"+File.separator);
 
         while(zipEntries.hasMoreElements())
         {
@@ -212,7 +212,7 @@ public class Zip
             {
                 necesaryEntries.remove(entryName);
             }
-            else if(!entryName.startsWith("_ham_/") && !entryName.startsWith("_spam_/"))
+            else if(!entryName.startsWith("_ham_"+File.separator) && !entryName.startsWith("_spam_"+File.separator))
             {
                 success = false;
                 break;

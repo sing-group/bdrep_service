@@ -115,8 +115,8 @@ public class Preprocessor {
     public boolean preprocessSystemTask(TaskCreateSdataset task) {
         boolean success = false;
         String datasetName = task.getDataset().getName();
-        String pathToDataset = datasetStorage.concat("/" + datasetName + ".zip");
-        String pathDest = datasetStorage.concat("/" + datasetName);
+        String pathToDataset = datasetStorage.concat(File.separator + datasetName + ".zip");
+        String pathDest = datasetStorage.concat(File.separator + datasetName);
         TaskDAO taskDAO = new TaskDAO(url, user, password);
         DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
         FileDAO fileDAO = new FileDAO(url, user, password);
@@ -216,7 +216,7 @@ public class Preprocessor {
 
                 for (org.datasetservice.domain.File spamFile : spamFiles) {
                     String path = spamFile.getPath();
-                    int lastSeparator = path.lastIndexOf("/");
+                    int lastSeparator = path.lastIndexOf(File.separator);
                     String fileName = path.substring(lastSeparator);
                     String pathDest = newDirectorySpam.getAbsolutePath() + File.separator + fileName;
 
@@ -226,7 +226,7 @@ public class Preprocessor {
 
                 for (org.datasetservice.domain.File hamFile : hamFiles) {
                     String path = hamFile.getPath();
-                    int lastSeparator = path.lastIndexOf("/");
+                    int lastSeparator = path.lastIndexOf(File.separator);
                     String fileName = path.substring(lastSeparator);
                     String pathDest = newDirectoryHam.getAbsolutePath() + File.separator + fileName;
 
