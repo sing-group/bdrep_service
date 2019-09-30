@@ -122,7 +122,6 @@ public class Preprocessor {
         FileDAO fileDAO = new FileDAO(url, user, password);
 
         if (Zip.unzip(pathToDataset, pathDest)) {
-
             Zip.delete(pathToDataset);
             taskDAO.changeState(null, "executing", task.getId());
 
@@ -162,7 +161,7 @@ public class Preprocessor {
             }
             datasetDAO.setAvailable(datasetName, true);
         } else {
-            taskDAO.changeState("Failed to uncompress the dataset", "failed", task.getId());
+            taskDAO.changeState("Failed to uncompress the dataset. Input path: "+pathToDataset+" Output path: "+pathDest+". ", "failed", task.getId());
             Zip.delete(pathToDataset);
         }
 
