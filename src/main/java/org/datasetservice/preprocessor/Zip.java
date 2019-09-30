@@ -111,11 +111,13 @@ public class Zip
         }
         catch(ZipException ze)
         {
+            System.out.println("Zip exception when uncompressing zip file "+path+" to "+destPath+": "+ze.getMessage());
             success = false; 
             return success;
         }
         catch(IOException ioE)
         {
+            System.out.println("I/O exception when uncompressing zip file "+path+" to "+destPath+": "+ioE.getMessage());
             success = false;
             return success;
         }
