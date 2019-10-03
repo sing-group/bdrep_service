@@ -15,9 +15,15 @@ import java.util.zip.ZipOutputStream;
 
 /**
  * Class for perform zip an unzip operations
+ * @author Ismael Vázqez
+ * @author José Ramón Méndez
  */
 public class Zip
 {
+    /**
+     * Stores messages after failures
+     */
+    static String message="";
 
     /**
      * Zips a folder in the correct format
@@ -104,6 +110,8 @@ public class Zip
             {
                 zipFile.close();
                 success = false;
+                message="The provided zip file ("+path+") does not have a right format.";
+                System.out.println("The provided zip file ("+path+") does not have a rigth format.");
                 return success;
             }  
 
@@ -111,12 +119,14 @@ public class Zip
         }
         catch(ZipException ze)
         {
+            message="Zip exception when uncompressing zip file "+path+" to "+destPath+": "+ze.getMessage();
             System.out.println("Zip exception when uncompressing zip file "+path+" to "+destPath+": "+ze.getMessage());
             success = false; 
             return success;
         }
         catch(IOException ioE)
         {
+            message="I/O exception when uncompressing zip file "+path+" to "+destPath+": "+ioE.getMessage();
             System.out.println("I/O exception when uncompressing zip file "+path+" to "+destPath+": "+ioE.getMessage());
             success = false;
             return success;
@@ -144,7 +154,7 @@ public class Zip
                     new File(destPath + File.separator + zipEntry.getName());
 
                     if(!newDirectory.exists())
-                        newDirectory.mkdir(); 
+                        newDirectory.mkdirs(); 
                         
                     zipEntry = zis.getNextEntry();
                 }
@@ -170,15 +180,21 @@ public class Zip
         }
         catch(FileNotFoundException fnfException)
         {
+            message="File not found error when uncompressing "+path+" to "+destPath+": "+fnfException.getMessage();
+            System.out.println("File not found error when uncompressing "+path+" to "+destPath+": "+fnfException.getMessage());
             success = false;
             return success;
         }
         catch(IOException ioException)
         {
+            message="I/O error when uncompressing: "+path+" to "+destPath+": "+ioException.getMessage();
+            System.out.println("I/O error when uncompressing: "+path+" to "+destPath+": "+ioException.getMessage());
+
             success = false;
             return success;
         }
 
+        message="";
         return success;
     }
 
@@ -228,5 +244,9 @@ public class Zip
 
         return success;
     }
+
+	public static String getErrorMessage() {
+		return message;
+	}
 
 }

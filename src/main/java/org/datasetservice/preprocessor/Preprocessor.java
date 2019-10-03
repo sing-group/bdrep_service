@@ -48,6 +48,7 @@ import org.w3c.dom.NodeList;
 
 /**
  * Class for perform system, user and preprocessing tasks
+ * @author Ismael Vázqez
  */
 public class Preprocessor {
 
@@ -161,7 +162,7 @@ public class Preprocessor {
             }
             datasetDAO.setAvailable(datasetName, true);
         } else {
-            taskDAO.changeState("Failed to uncompress the dataset. Input path: "+pathToDataset+" Output path: "+pathDest+". ", "failed", task.getId());
+            taskDAO.changeState("Failed to uncompress the dataset. Input path: "+pathToDataset+" Output path: "+pathDest+". Reason: "+Zip.getErrorMessage(), "failed", task.getId());
             Zip.delete(pathToDataset);
         }
 
