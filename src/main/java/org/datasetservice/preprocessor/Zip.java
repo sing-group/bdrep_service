@@ -148,6 +148,8 @@ public class Zip
 
             while(zipEntry!=null)
             {
+                if (!zipEntry.getName().startsWith("_ham_"+File.pathSeparator) && !zipEntry.getName().startsWith("_spam_"+File.pathSeparator)) continue; 
+
                 if(zipEntry.isDirectory())
                 {
                     File newDirectory = 
@@ -230,11 +232,12 @@ public class Zip
             {
                 necesaryEntries.remove(entryName);
             }
+            /*
             else if(!entryName.startsWith("_ham_"+File.separator) && !entryName.startsWith("_spam_"+File.separator))
             {
                 success = false;
                 break;
-            }
+            }*/
         }
 
         if(!necesaryEntries.isEmpty())
