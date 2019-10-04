@@ -148,7 +148,7 @@ public class Zip
 
             while(zipEntry!=null)
             {
-                if (!zipEntry.getName().startsWith("_ham_"+File.pathSeparator) && !zipEntry.getName().startsWith("_spam_"+File.pathSeparator)) {
+                if (!zipEntry.getName().startsWith("_ham_"+File.separator) && !zipEntry.getName().startsWith("_spam_"+File.separator)) {
                     zipEntry = zis.getNextEntry();
                     continue; 
                 }
