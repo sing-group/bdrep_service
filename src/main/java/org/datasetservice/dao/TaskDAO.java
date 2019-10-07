@@ -42,7 +42,7 @@ public class TaskDAO {
             }
 
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getTask]: " + sqlException.getMessage());
         }
         return task;
     }
@@ -63,7 +63,7 @@ public class TaskDAO {
 
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR changeState]: " + sqlException.getMessage());
         }
     }
 }

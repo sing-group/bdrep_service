@@ -55,7 +55,7 @@ public class TaskCreateUPreprocessingDAO {
             }
 
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getWaitingTasksCreateUPreprocessingDAO]: " + sqlException.getMessage());
             return tasks;
         }
         return tasks;

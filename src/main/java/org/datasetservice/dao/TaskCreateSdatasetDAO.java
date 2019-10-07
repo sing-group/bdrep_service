@@ -49,7 +49,7 @@ public class TaskCreateSdatasetDAO {
                 }
             }
         } catch(Exception sqlException){
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getWaitingSystemTasks]: " + sqlException.getMessage());
         }
         return waitingSystemTasks;
     }

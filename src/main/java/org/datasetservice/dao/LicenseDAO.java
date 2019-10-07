@@ -48,7 +48,7 @@ public class LicenseDAO {
                 licenses.add(license);
             }
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getLicenses]: " + sqlException.getMessage());
         }
 
         return licenses;

@@ -99,7 +99,7 @@ public class TaskCreateUdatasetDAO {
                 }
             }
         } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
+           logger.warn("[ERROR getWaitingUserTasks]: " + sqlException.getMessage());
         }
 
         return waitingUtasks;
@@ -137,10 +137,9 @@ public class TaskCreateUdatasetDAO {
             preparedStatementUpdate.setLong(2, task.getId());
 
             preparedStatementUpdate.executeUpdate();
-            //connection.close();
-
+            
         } catch (SQLException sqlException) {
-            sqlException.printStackTrace();
+            logger.warn("[ERROR stablishLicense]: " + sqlException.getMessage());
         }
 
     }

@@ -46,7 +46,7 @@ public class DatatypeDAO {
                 datatypes.add(datatype);
             }
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getDatatypes]: " + sqlException.getMessage());
         }
 
         return datatypes;

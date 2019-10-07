@@ -46,7 +46,7 @@ public class DatasetDAO {
                 dataset.setName(rs.getString(1));
             }
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getDatasetByTaskId]: " + sqlException.getMessage());
         }
 
         return dataset;
@@ -73,7 +73,7 @@ public class DatasetDAO {
                 datasets.add(dataset);
             }
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getDatasetsUserTask]: " + sqlException.getMessage());
         }
         return datasets;
     }
@@ -92,7 +92,7 @@ public class DatasetDAO {
             preparedStatement.setString(2, name);
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR setAvailable]: " + sqlException.getMessage());
         }
     }
 
@@ -123,7 +123,7 @@ public class DatasetDAO {
             preparedStatement.setString(5, datasetName);
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR completeFields]: " + sqlException.getMessage());
         }
     }
 }

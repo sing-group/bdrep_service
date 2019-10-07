@@ -47,7 +47,7 @@ public class LanguageDAO {
                 languages.add(language);
             }
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR]: " + sqlException.getMessage());
+            logger.warn("[ERROR getLanguages]: " + sqlException.getMessage());
         }
         return languages;
     }
