@@ -6,78 +6,80 @@ import java.util.Properties;
 import org.datasetservice.dao.TaskCreateSdatasetDAO;
 import org.datasetservice.dao.TaskCreateUPreprocessingDAO;
 import org.datasetservice.dao.TaskCreateUdatasetDAO;
+import org.datasetservice.dao.ConnectionPool;
 import org.datasetservice.domain.TaskCreateSdataset;
 import org.datasetservice.domain.TaskCreateUPreprocessing;
 import org.datasetservice.domain.TaskCreateUdataset;
 import org.datasetservice.preprocessor.Preprocessor;
 
-public class Main
-{
+import org.apache.commons.dbcp2.BasicDataSource;
 
-    public static void main(String[] args) throws Exception
-    {
-        Main main = new Main();
+public class Main {
 
-        String url = main.chargeProperty("url");
-        String user = main.chargeProperty("user");
-        String password = main.chargeProperty("password");
-        String datasetStorage = main.chargeProperty("datasetStorage");
-        String pipelineStorage = main.chargeProperty("pipelineStorage");
-        String outputStorage = main.chargeProperty("outputStorage");
-        
-        Preprocessor preprocessor = new Preprocessor(url, user, password, datasetStorage, pipelineStorage, outputStorage);
+    static final long CHECK_INTERVAL_MS = 5000;
 
-        TaskCreateSdatasetDAO taskCreateSdatasetDAO = new TaskCreateSdatasetDAO(url, user, password);
-        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(url, user, password);
-        TaskCreateUPreprocessingDAO taskCreateUPreprocessingDAO = new TaskCreateUPreprocessingDAO(url, user, password);
+    public static void main(String[] args) throws Exception {
+        BasicDataSource ds = new BasicDataSource();
+        ds.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        ds.setUsername(getProperty("user"));
+        ds.setPassword(getProperty("password"));
+
+        String datasetStorage = getProperty("datasetStorage");
+        String pipelineStorage = getProperty("pipelineStorage");
+        String outputStorage = getProperty("outputStorage");
+
+        Preprocessor preprocessor = new Preprocessor(datasetStorage, pipelineStorage, outputStorage);
+
+        TaskCreateSdatasetDAO taskCreateSdatasetDAO = new TaskCreateSdatasetDAO();
+        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO();
+        TaskCreateUPreprocessingDAO taskCreateUPreprocessingDAO = new TaskCreateUPreprocessingDAO();
 
         System.out.println("Waiting for tasks");
 
-        while(true)
-        {
+        Long startTime = System.currentTimeMillis();
+        while (true) {
+            Thread.sleep(CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime));
+            startTime = System.currentTimeMillis();
+            System.out.println(ConnectionPool.getDataSource().getNumActive() + "/" + ConnectionPool.getDataSource().getNumIdle());
+
             ArrayList<TaskCreateSdataset> waitingSTasks = taskCreateSdatasetDAO.getWaitingSystemTasks();
 
-            for(TaskCreateSdataset task : waitingSTasks)
-            {
+            for (TaskCreateSdataset task : waitingSTasks) {
                 String datasetName = task.getDataset().getName();
-                if(datasetName!=null)
+                if (datasetName != null) {
                     preprocessor.preprocessSystemTask(task);
-                
+                }
             }
 
             ArrayList<TaskCreateUdataset> waitingUTasks = taskCreateUdatasetDAO.getWaitingUserTasks();
 
-            for(TaskCreateUdataset task : waitingUTasks)
-            {
+            waitingUTasks.forEach((task) -> {
                 String datasetName = task.getDataset().getName();
-                if(datasetName!=null)
+                if (datasetName != null) {
                     preprocessor.preprocessUserTask(task);
-            }
+                }
+            });
 
             ArrayList<TaskCreateUPreprocessing> waitingPreprocessingTasks = taskCreateUPreprocessingDAO.getWaitingTasksCreateUPreprocessingDAO();
 
-            for(TaskCreateUPreprocessing task : waitingPreprocessingTasks)
-            {
+            waitingPreprocessingTasks.forEach((task) -> {
                 preprocessor.preprocessDataset(task);
-            }
+            });
         }
-        
-        
     }
 
     /**
      * Take the specified property of the properties file
+     *
      * @param key the key of the property
      * @return a String with the value of the property
      * @throws Exception
      */
-    private String chargeProperty(String key) throws Exception
-    {
+    public static String getProperty(String key) throws Exception {
         Properties properties = new Properties();
         String toRet = "";
 
-        ClassLoader classLoader = getClass().getClassLoader();
-        properties.load(classLoader.getResourceAsStream("service.properties"));
+        properties.load(Main.class.getClassLoader().getResourceAsStream("service.properties"));
         toRet = properties.getProperty(key);
 
         return toRet;

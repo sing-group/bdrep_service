@@ -5,22 +5,23 @@ import java.util.List;
 
 /**
  * JPA Bean for the Dataset objects managed by application
+ *
  * @author Ismael Vázqez
  */
-public class TaskCreateUdataset extends Task
-{
+public class TaskCreateUdataset extends Task {
+
     private int limitSpamPercentageEml;
 
     private int limitHamPercentageEml;
 
     private int limitSpamPercentageTwtid;
-    
+
     private int limitHamPercentageTwtid;
 
     private int limitSpamPercentageTytb;
 
     private int limitHamPercentageTytb;
-    
+
     private int limitSpamPercentageWarc;
 
     private int limitHamPercentageWarc;
@@ -72,29 +73,43 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Creates an instance of TaskCreateUdataset
+     *
+     * @param id the is of the task
      * @param dataset The dataset associated to the task
      * @param state The state of the task
      * @param message The message of the task when failed
-     * @param limitPercentageSpam The limit of percentage of spam in the new dataset
+     * @param limitPercentageSpam The limit of percentage of spam in the new
+     * dataset
      * @param limitNumberOfFiles The limit of files of the new dataset
-     * @param dateFrom The date from which you can pick up files from the original datasets
-     * @param dateTo  The date until which you can pick up files from the original datasets
-     * @param languages The languages selected in the filters to construct the new dataset
-     * @param datatypes The datatypes selected in the filters to construct the new dataset
-     * @param licenses The licenses selected in the filters to construct the new dataset
-     * @param limitPercentageEml The limit of percentage of .eml files
-     * @param limitPercentageTytb The limit of percentage of .tytb files
-     * @param limitPercentageTsms The limit of percentage of .tsms files
-     * @param limitPercentageTwtid The limit of percentage of .twtid files
-     * @param limitPercentageWarc The limit of percentage of .warc files
+     * @param dateFrom The date from which you can pick up files from the
+     * original datasets
+     * @param dateTo The date until which you can pick up files from the
+     * original datasets
+     * @param languages The languages selected in the filters to construct the
+     * new dataset
+     * @param datatypes The datatypes selected in the filters to construct the
+     * new dataset
+     * @param licenses The licenses selected in the filters to construct the new
+     * dataset
+     * @param datasets
+     * @param limitSpamPercentageEml
+     * @param limitHamPercentageEml
+     * @param limitSpamPercentageWarc
+     * @param limitHamPercentageWarc
+     * @param limitSpamPercentageTytb
+     * @param limitHamPercentageTytb
+     * @param limitSpamPercentageTsms
+     * @param limitHamPercentageTsms
+     * @param limitSpamPercentageTwtid
+     * @param limitHamPercentageTwtid
+     * @param spamMode
      */
     public TaskCreateUdataset(Long id, Dataset dataset, String state, String message, int limitPercentageSpam, int limitNumberOfFiles,
-    Date dateFrom, Date dateTo, List<Language> languages, List<Datatype> datatypes,List<License> licenses, List<Dataset> datasets,
-    int limitSpamPercentageEml,
-    int limitHamPercentageEml,int limitSpamPercentageWarc, int limitHamPercentageWarc, int limitSpamPercentageTytb, int limitHamPercentageTytb,
-    int limitSpamPercentageTsms, int limitHamPercentageTsms, int limitSpamPercentageTwtid, int limitHamPercentageTwtid, boolean spamMode)
-    {
-        super(id,dataset, state, message);
+            Date dateFrom, Date dateTo, List<Language> languages, List<Datatype> datatypes, List<License> licenses, List<Dataset> datasets,
+            int limitSpamPercentageEml,
+            int limitHamPercentageEml, int limitSpamPercentageWarc, int limitHamPercentageWarc, int limitSpamPercentageTytb, int limitHamPercentageTytb,
+            int limitSpamPercentageTsms, int limitHamPercentageTsms, int limitSpamPercentageTwtid, int limitHamPercentageTwtid, boolean spamMode) {
+        super(id, dataset, state, message);
         this.limitSpamPercentageEml = limitSpamPercentageEml;
         this.limitHamPercentageEml = limitHamPercentageEml;
         this.limitSpamPercentageTsms = limitSpamPercentageTsms;
@@ -119,13 +134,13 @@ public class TaskCreateUdataset extends Task
     /**
      * The default constructor
      */
-    public TaskCreateUdataset()
-    {
+    public TaskCreateUdataset() {
         super();
     }
 
     /**
      * Return the limit of percentage of spam in the new dataset
+     *
      * @return the limit of percentage of spam in the new dataset
      */
     public int getLimitPercentageSpam() {
@@ -134,7 +149,9 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Stablish the limit of percentage of spam in the new dataset
-     * @param limitPercentageSpam the limit of percentage of spam in the new dataset
+     *
+     * @param limitPercentageSpam the limit of percentage of spam in the new
+     * dataset
      */
     public void setLimitPercentageSpam(int limitPercentageSpam) {
         this.limitPercentageSpam = limitPercentageSpam;
@@ -142,6 +159,7 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Return the limit of files in the new dataset
+     *
      * @return the limit of files in the new dataset
      */
     public int getLimitNumberOfFiles() {
@@ -150,6 +168,7 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Stablish the limit of files in the new dataset
+     *
      * @param limitNumberOfFiles the limit of files in the new dataset
      */
     public void setLimitNumberOfFiles(int limitNumberOfFiles) {
@@ -157,16 +176,22 @@ public class TaskCreateUdataset extends Task
     }
 
     /**
-     * Return the date from which you can pick up files from the original datasets
-     * @return  the date from which you can pick up files from the original datasets
+     * Return the date from which you can pick up files from the original
+     * datasets
+     *
+     * @return the date from which you can pick up files from the original
+     * datasets
      */
     public Date getDateFrom() {
         return this.dateFrom;
     }
 
     /**
-     * Stablish the date from which you can pick up files from the original datasets
-     * @param dateFrom the date from which you can pick up files from the original datasets
+     * Stablish the date from which you can pick up files from the original
+     * datasets
+     *
+     * @param dateFrom the date from which you can pick up files from the
+     * original datasets
      */
     public void setDateFrom(Date dateFrom) {
         this.dateFrom = dateFrom;
@@ -174,6 +199,7 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Return the date until you can pick up files from the original datasets
+     *
      * @return the date until you can pick up files from the original datasets
      */
     public Date getDateTo() {
@@ -182,258 +208,234 @@ public class TaskCreateUdataset extends Task
 
     /**
      * Stablish the date until you can pick up files from the original datasets
-     * @param dateTo the date until you can pick up files from the original datasets
+     *
+     * @param dateTo the date until you can pick up files from the original
+     * datasets
      */
     public void setDateTo(Date dateTo) {
         this.dateTo = dateTo;
     }
 
     /**
-     * Return the list of the languages selected in the filters to construct the new dataset
-     * @return the list of the languages selected in the filters to construct the new dataset
+     * Return the list of the languages selected in the filters to construct the
+     * new dataset
+     *
+     * @return the list of the languages selected in the filters to construct
+     * the new dataset
      */
     public List<Language> getLanguages() {
         return this.languages;
     }
 
     /**
-     * Stablish the list of the languages selected in the filters to construct the new dataset
-     * @param languages the list of the languages selected in the filters to construct the new dataset
+     * Stablish the list of the languages selected in the filters to construct
+     * the new dataset
+     *
+     * @param languages the list of the languages selected in the filters to
+     * construct the new dataset
      */
     public void setLanguages(List<Language> languages) {
         this.languages = languages;
     }
 
     /**
-     * Return the list of the datatypes selected in the filters to construct the new dataset
-     * @return the list of the datatypes selected in the filters to construct the new dataset
+     * Return the list of the datatypes selected in the filters to construct the
+     * new dataset
+     *
+     * @return the list of the datatypes selected in the filters to construct
+     * the new dataset
      */
     public List<Datatype> getDatatypes() {
         return this.datatypes;
     }
 
     /**
-     * Stablish the list of the datatypes selected in the filters to construct the new dataset
-     * @param datatypes the list of the datatypes selected in the filters to construct the new dataset
+     * Stablish the list of the datatypes selected in the filters to construct
+     * the new dataset
+     *
+     * @param datatypes the list of the datatypes selected in the filters to
+     * construct the new dataset
      */
     public void setDatatypes(List<Datatype> datatypes) {
         this.datatypes = datatypes;
     }
 
     /**
-     * Return the list of licenses selected in the filters to construct the new dataset
-     * @return the list of licenses selected in the filters to construct the new dataset
+     * Return the list of licenses selected in the filters to construct the new
+     * dataset
+     *
+     * @return the list of licenses selected in the filters to construct the new
+     * dataset
      */
-    public List<License> getLicenses()
-    {
+    public List<License> getLicenses() {
         return licenses;
     }
 
     /**
-     * Stablish the list of licenses selected in the filters to construct the new dataset
-     * @param licenses the list of licenses selected in the filters to construct the new dataset
+     * Stablish the list of licenses selected in the filters to construct the
+     * new dataset
+     *
+     * @param licenses the list of licenses selected in the filters to construct
+     * the new dataset
      */
-    public void setLicenses(List<License> licenses)
-    {
+    public void setLicenses(List<License> licenses) {
         this.licenses = licenses;
     }
 
     /**
      * Return the list of datasets used to construct the new dataset
+     *
      * @return the list of datasets used to construct the new dataset
      */
-    public List<Dataset> getDatasets()
-    {
+    public List<Dataset> getDatasets() {
         return this.datasets;
     }
 
     /**
      * Stablish the list of datasets used to construct the new dataset
+     *
      * @param datasets the list of datasets used to construct the new dataset
      */
-    public void setDatasets(List<Dataset> datasets)
-    {
+    public void setDatasets(List<Dataset> datasets) {
         this.datasets = datasets;
     }
 
-    public int getLimitSpamPercentageEml()
-    {
+    public int getLimitSpamPercentageEml() {
         return this.limitSpamPercentageEml;
     }
-    
-    public void setLimitSpamPercentageEml(int limitSpamPercentageEml)
-    {
+
+    public void setLimitSpamPercentageEml(int limitSpamPercentageEml) {
         this.limitSpamPercentageEml = limitSpamPercentageEml;
     }
-    
-    public int getLimitHamPercentageEml()
-    {
+
+    public int getLimitHamPercentageEml() {
         return this.limitHamPercentageEml;
     }
-    
-    public void setLimitHamPercentageEml(int limitHamPercentageEml)
-    {
+
+    public void setLimitHamPercentageEml(int limitHamPercentageEml) {
         this.limitHamPercentageEml = limitHamPercentageEml;
     }
 
-    public int getLimitSpamPercentageWarc()
-    {
+    public int getLimitSpamPercentageWarc() {
         return this.limitSpamPercentageWarc;
     }
-    
-    public void setLimitSpamPercentageWarc(int limitSpamPercentageWarc)
-    {
+
+    public void setLimitSpamPercentageWarc(int limitSpamPercentageWarc) {
         this.limitSpamPercentageWarc = limitSpamPercentageWarc;
     }
-    
-    public int getLimitHamPercentageWarc()
-    {
+
+    public int getLimitHamPercentageWarc() {
         return this.limitHamPercentageWarc;
     }
-    
-    public void setLimitHamPercentageWarc(int limitHamPercentageWarc)
-    {
+
+    public void setLimitHamPercentageWarc(int limitHamPercentageWarc) {
         this.limitHamPercentageWarc = limitHamPercentageWarc;
     }
-    
 
-    public int getLimitSpamPercentageTsms()
-    {
+    public int getLimitSpamPercentageTsms() {
         return this.limitSpamPercentageTsms;
     }
-    
-    public void setLimitSpamPercentageTsms(int limitSpamPercentageTsms)
-    {
+
+    public void setLimitSpamPercentageTsms(int limitSpamPercentageTsms) {
         this.limitSpamPercentageTsms = limitSpamPercentageTsms;
     }
-    
-    public int getLimitHamPercentageTsms()
-    {
+
+    public int getLimitHamPercentageTsms() {
         return this.limitHamPercentageTsms;
     }
-    
-    public void setLimitHamPercentageTsms(int limitHamPercentageTsms)
-    {
+
+    public void setLimitHamPercentageTsms(int limitHamPercentageTsms) {
         this.limitHamPercentageTsms = limitHamPercentageTsms;
     }
 
-    public int getLimitSpamPercentageTytb()
-    {
+    public int getLimitSpamPercentageTytb() {
         return this.limitSpamPercentageTytb;
     }
-    
-    public void setLimitSpamPercentageTytb(int limitSpamPercentageTytb)
-    {
+
+    public void setLimitSpamPercentageTytb(int limitSpamPercentageTytb) {
         this.limitSpamPercentageTytb = limitSpamPercentageTytb;
     }
-    
-    public int getLimitHamPercentageTytb()
-    {
+
+    public int getLimitHamPercentageTytb() {
         return this.limitHamPercentageTytb;
     }
-    
-    public void setLimitHamPercentageTytb(int limitHamPercentageTytb)
-    {
+
+    public void setLimitHamPercentageTytb(int limitHamPercentageTytb) {
         this.limitHamPercentageTytb = limitHamPercentageTytb;
     }
 
-    public int getLimitSpamPercentageTwtid()
-    {
+    public int getLimitSpamPercentageTwtid() {
         return this.limitSpamPercentageTwtid;
     }
-    
-    public void setLimitSpamPercentageTwtid(int limitSpamPercentageTwtid)
-    {
+
+    public void setLimitSpamPercentageTwtid(int limitSpamPercentageTwtid) {
         this.limitSpamPercentageTwtid = limitSpamPercentageTwtid;
     }
-    
-    public int getLimitHamPercentageTwtid()
-    {
+
+    public int getLimitHamPercentageTwtid() {
         return this.limitHamPercentageTwtid;
     }
-    
-    public void setLimitHamPercentageTwtid(int limitHamPercentageTwtid)
-    {
+
+    public void setLimitHamPercentageTwtid(int limitHamPercentageTwtid) {
         this.limitHamPercentageTwtid = limitHamPercentageTwtid;
     }
 
-    public boolean getSpamMode()
-    {
+    public boolean getSpamMode() {
         return this.spamMode;
     }
 
-    public void setSpamMode(boolean spamMode)
-    {
+    public void setSpamMode(boolean spamMode) {
         this.spamMode = spamMode;
     }
 
-    public String toStringLicenses()
-    {
+    public String toStringLicenses() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if(this.getLicenses().size()==0)
-        {
+        if (this.getLicenses().isEmpty()) {
             stringBuilder.append("Not licenses selected");
-        }
-        else
-        {
-            for(License license : this.getLicenses())
-            {
-                stringBuilder.append(license.getName() + " ");
-            }
+        } else {
+            this.getLicenses().forEach((license) -> {
+                stringBuilder.append(license.getName()).append(" ");
+            });
         }
 
         return stringBuilder.toString();
     }
 
-    public String toStringDatatypes()
-    {
+    public String toStringDatatypes() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if(this.getDatatypes().size()==0)
-        {
+        if (this.getDatatypes().isEmpty()) {
             stringBuilder.append("Not datatypes selected");
-        }
-        else
-        {
-            for(Datatype datatype : this.getDatatypes())
-            {
-                stringBuilder.append(datatype.getDatatype() + " ");
-            }
+        } else {
+            this.getDatatypes().forEach((datatype) -> {
+                stringBuilder.append(datatype.getDatatype()).append(" ");
+            });
         }
 
         return stringBuilder.toString();
     }
 
-    public String toStringLanguages()
-    {
+    public String toStringLanguages() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if(this.getLanguages().size()==0)
-        {
+        if (this.getLanguages().isEmpty()) {
             stringBuilder.append("Not languages selected");
-        }
-        else
-        {
-            for(Language language : this.getLanguages())
-            {
-                stringBuilder.append(language.getLanguage() + " ");
-            } 
+        } else {
+            this.getLanguages().forEach((language) -> {
+                stringBuilder.append(language.getLanguage()).append(" ");
+            });
         }
 
         return stringBuilder.toString();
     }
 
-    public String toStringDate()
-    {
+    public String toStringDate() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        if(dateTo!=null && dateFrom!=null)
-        {
-            stringBuilder.append("From "+this.getDateFrom().toString()+" until "+ this.getDateTo().toString());
-        }
-        else
-        {
+        if (dateTo != null && dateFrom != null) {
+            stringBuilder.append("From ").append(this.getDateFrom().toString()).append(" until ").append(this.getDateTo().toString());
+        } else {
             stringBuilder.append("Not dates selected");
         }
 
@@ -441,24 +443,22 @@ public class TaskCreateUdataset extends Task
     }
 
     //Modify this method to show only the selected parameters: by spam or by datatypes
-    public String toStringParameters()
-    {
+    public String toStringParameters() {
         StringBuilder stringBuilder = new StringBuilder();
 
-        stringBuilder.append("File number: " + this.limitNumberOfFiles +"\n");
-        stringBuilder.append("%Spam: " + this.limitPercentageSpam +"\n");
-        stringBuilder.append("% Spam .eml: "+ this.limitSpamPercentageEml+"\n");
-        stringBuilder.append("% Spam .warc: " + this.limitSpamPercentageWarc + "\n");
-        stringBuilder.append("% Spam .tsms: " + this.limitSpamPercentageTsms + "\n");
-        stringBuilder.append("% Spam .twtid: " + this.limitSpamPercentageTwtid +"\n");
-        stringBuilder.append("% Spam .tytb: " + this.limitSpamPercentageTytb + "\n");
-        stringBuilder.append("% Ham .eml: "+ this.limitHamPercentageEml+"\n");
-        stringBuilder.append("% Ham .warc: " + this.limitHamPercentageWarc + "\n");
-        stringBuilder.append("% Ham .tsms: " + this.limitHamPercentageTsms + "\n");
-        stringBuilder.append("% Ham .twtid: " + this.limitHamPercentageTwtid +"\n");
-        stringBuilder.append("% Ham .tytb: " + this.limitHamPercentageTytb + "\n");
+        stringBuilder.append("File number: ").append(this.limitNumberOfFiles).append("\n");
+        stringBuilder.append("%Spam: ").append(this.limitPercentageSpam).append("\n");
+        stringBuilder.append("% Spam .eml: ").append(this.limitSpamPercentageEml).append("\n");
+        stringBuilder.append("% Spam .warc: ").append(this.limitSpamPercentageWarc).append("\n");
+        stringBuilder.append("% Spam .tsms: ").append(this.limitSpamPercentageTsms).append("\n");
+        stringBuilder.append("% Spam .twtid: ").append(this.limitSpamPercentageTwtid).append("\n");
+        stringBuilder.append("% Spam .tytb: ").append(this.limitSpamPercentageTytb).append("\n");
+        stringBuilder.append("% Ham .eml: ").append(this.limitHamPercentageEml).append("\n");
+        stringBuilder.append("% Ham .warc: ").append(this.limitHamPercentageWarc).append("\n");
+        stringBuilder.append("% Ham .tsms: ").append(this.limitHamPercentageTsms).append("\n");
+        stringBuilder.append("% Ham .twtid: ").append(this.limitHamPercentageTwtid).append("\n");
+        stringBuilder.append("% Ham .tytb: ").append(this.limitHamPercentageTytb).append("\n");
 
         return stringBuilder.toString();
     }
-
 }

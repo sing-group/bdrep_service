@@ -5,11 +5,11 @@ import java.util.Set;
 
 /**
  * JPA Bean for the File objects managed by application
- * 
+ *
  * @author Ismael Vázqez
  */
-public class File
-{
+public class File {
+
     /**
      * The id of the file
      */
@@ -41,7 +41,7 @@ public class File
     private String extension;
 
     /**
-     * The datasets related with the 
+     * The datasets related with the
      */
     private Set<Dataset> datasets;
 
@@ -49,11 +49,9 @@ public class File
      * The default constructor
      */
     public File() {
-
     }
 
-    public File(String path, String type, String language, Date date, String extension)
-    {
+    public File(String path, String type, String language, Date date, String extension) {
         this.path = path;
         this.type = type;
         this.language = language;
@@ -61,8 +59,7 @@ public class File
         this.date = date;
     }
 
-    public File(Long id, String path, String type, String language, Date date, String extension)
-    {
+    public File(Long id, String path, String type, String language, Date date, String extension) {
         this.id = id;
         this.path = path;
         this.type = type;
@@ -71,10 +68,9 @@ public class File
         this.extension = extension;
     }
 
-
-
     /**
      * Returns the extension of the file
+     *
      * @return the file extension
      */
     public String getExtension() {
@@ -83,6 +79,7 @@ public class File
 
     /**
      * Stablish the extension of the file
+     *
      * @param extension the file extension to set
      */
     public void setExtension(String extension) {
@@ -91,88 +88,81 @@ public class File
 
     /**
      * Returns the path of the file
+     *
      * @return the path of the file
      */
-    public String getPath()
-    {
+    public String getPath() {
         return path;
     }
 
     /**
      * Stablish the path of the file
+     *
      * @param path the path of the file
      */
-    public void setPath(String path)
-    {
+    public void setPath(String path) {
         this.path = path;
     }
 
     /**
      * Returns the type of the file
+     *
      * @return the type of the file
      */
-    public String getType()
-    {
+    public String getType() {
         return type;
     }
 
     /**
      * Stablish the type of the file
+     *
      * @param type the type of the file
      */
-    public void setType(String type)
-    {
+    public void setType(String type) {
         this.type = type;
     }
 
     /**
      * Returns the language of the file
+     *
      * @return the language of the file
      */
-    public String getLanguage()
-    {
+    public String getLanguage() {
         return language;
     }
 
     /**
      * Stablish the language of the file
+     *
      * @param language the language of the file
      */
-    public void setLanguage(String language)
-    {
+    public void setLanguage(String language) {
         this.language = language;
     }
 
     /**
      * Return the date of the file
+     *
      * @return the date of the file
      */
-    public Date getDate()
-    {
+    public Date getDate() {
         return date;
     }
 
     /**
      * Stablish the date of the file
+     *
      * @param date the date of the file
      */
-    public void setDate(Date date)
-    {
+    public void setDate(Date date) {
         this.date = date;
     }
 
-    public Long getId()
-    {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(Long id)
-    {
+    public void setId(Long id) {
         this.id = id;
     }
-
-
-
-
-
 }

@@ -8,6 +8,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
 
 import org.datasetservice.domain.Dataset;
 import org.datasetservice.domain.Datatype;
@@ -20,62 +22,40 @@ import org.datasetservice.domain.TaskCreateUdataset;
  */
 public class TaskCreateUdatasetDAO {
 
-     /**
+    /**
      * The connection url to the database
      */
-    private String url;
-
-    /**
-     * The user of the database
-     */
-    private String user;
-
-    /**
-     * The password for the database
-     */
-    private String password;
+    private static final Logger logger = LogManager.getLogger(TaskCreateUdatasetDAO.class);
 
     /**
      * A constructor for create instances of TaskCreateUDatasetDAO
-     * @param url The connection url to the database
-     * @param user The user of the database
-     * @param password The password for the database
      */
-    public TaskCreateUdatasetDAO(String url, String user, String password)
-    {
-        this.url = url;
-        this.user = user;
-        this.password = password;
-
+    public TaskCreateUdatasetDAO() {
     }
 
     /**
      * Return a list of the waiting user tasks
+     *
      * @return a list of the waiting user tasks
      */
-    public ArrayList<TaskCreateUdataset> getWaitingUserTasks()
-    {
-        ArrayList<TaskCreateUdataset> waitingUtasks = new ArrayList<TaskCreateUdataset>();
+    public ArrayList<TaskCreateUdataset> getWaitingUserTasks() {
+        ArrayList<TaskCreateUdataset> waitingUtasks = new ArrayList<>();
 
-        String query = "select t.id, t.message, t.state, ud.limit_ham_percentage_eml,"+
-        "ud.limit_spam_percentage_eml, ud.limit_ham_percentage_twtid, ud.limit_spam_percentage_twtid,"+
-        "ud.limit_ham_percentage_tsms, ud.limit_spam_percentage_tsms,ud.limit_ham_percentage_tytb,"+
-        "ud.limit_spam_percentage_tytb, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"+
-        "ud.limit_number_of_files, ud.limit_percentage_spam, ud.spam_mode, ud.date_to, ud.date_from "
-        + "from task_create_udataset ud inner join task t on t.id = ud.id where t.state='waiting'";
-        try(Connection connection = DriverManager.getConnection(url, user, password);
-        Statement st = connection.createStatement();
-        ResultSet rs = st.executeQuery(query)
-        )
-        {
+        String query = "select t.id, t.message, t.state, ud.limit_ham_percentage_eml,"
+                + "ud.limit_spam_percentage_eml, ud.limit_ham_percentage_twtid, ud.limit_spam_percentage_twtid,"
+                + "ud.limit_ham_percentage_tsms, ud.limit_spam_percentage_tsms,ud.limit_ham_percentage_tytb,"
+                + "ud.limit_spam_percentage_tytb, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"
+                + "ud.limit_number_of_files, ud.limit_percentage_spam, ud.spam_mode, ud.date_to, ud.date_from "
+                + "from task_create_udataset ud inner join task t on t.id = ud.id where t.state='waiting'";
+        try (Connection connection = ConnectionPool.getDataSourceConnection();
+                Statement st = connection.createStatement();
+                ResultSet rs = st.executeQuery(query)) {
 
-            while(rs.next())
-            {
-                DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
+            while (rs.next()) {
+                DatasetDAO datasetDAO = new DatasetDAO();
                 Dataset dataset = datasetDAO.getDatasetByTaskId(rs.getLong(1));
 
-                if(dataset != null)
-                {
+                if (dataset != null) {
                     Long taskId = rs.getLong(1);
                     String message = rs.getString(2);
                     String state = rs.getString(3);
@@ -84,9 +64,9 @@ public class TaskCreateUdatasetDAO {
                     Date dateFrom = rs.getDate(18);
                     Date dateTo = rs.getDate(17);
 
-                    LanguageDAO languageDAO = new LanguageDAO(url, user, password);
-                    LicenseDAO licenseDAO = new LicenseDAO(url, user, password);
-                    DatatypeDAO datatypeDAO = new DatatypeDAO(url, user, password);
+                    LanguageDAO languageDAO = new LanguageDAO();
+                    LicenseDAO licenseDAO = new LicenseDAO();
+                    DatatypeDAO datatypeDAO = new DatatypeDAO();
 
                     ArrayList<Language> languages = languageDAO.getLanguages(taskId);
                     ArrayList<License> licenses = licenseDAO.getLicenses(taskId);
@@ -111,16 +91,14 @@ public class TaskCreateUdatasetDAO {
                     boolean spamMode = rs.getBoolean(16);
 
                     TaskCreateUdataset taskCreateUdataset = new TaskCreateUdataset(taskId, dataset, state, message, limitPercentageSpam, limitNumberOfFiles,
-                     dateFrom, dateTo, languages, datatypes, licenses, datasets, limitSpamPercentageEml, limitHamPercentageEml, limitSpamPercentageWarc,
-                      limitHamPercentageWarc, limitSpamPercentageTytb, limitHamPercentageTytb, limitSpamPercentageTsms, limitHamPercentageTsms, limitSpamPercentageTwtid,
-                       limitHamPercentageTwtid, spamMode);
+                            dateFrom, dateTo, languages, datatypes, licenses, datasets, limitSpamPercentageEml, limitHamPercentageEml, limitSpamPercentageWarc,
+                            limitHamPercentageWarc, limitSpamPercentageTytb, limitHamPercentageTytb, limitSpamPercentageTsms, limitHamPercentageTsms, limitSpamPercentageTwtid,
+                            limitHamPercentageTwtid, spamMode);
 
                     waitingUtasks.add(taskCreateUdataset);
                 }
             }
-        }
-        catch(SQLException sqlException)
-        {
+        } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
 
@@ -129,31 +107,28 @@ public class TaskCreateUdatasetDAO {
 
     /**
      * Stablish the license of the specified user task
+     *
      * @param task the task to stablish the license
      */
-    public void stablishLicense(TaskCreateUdataset task)
-    {
-        String query = "select l.name, l.restriction_level from license l inner join dataset d on l.name=d.id "+
-         "where d.name in (select dt.dataset from task_create_udataset t inner join task_create_udataset_datasets dt on dt.task_id=t.id where t.id=?)";
+    public void stablishLicense(TaskCreateUdataset task) {
+        String query = "select l.name, l.restriction_level from license l inner join dataset d on l.name=d.id "
+                + "where d.name in (select dt.dataset from task_create_udataset t inner join task_create_udataset_datasets dt on dt.task_id=t.id where t.id=?)";
 
         String updateQuery = "update dataset set id=? where task_id=?";
 
-        try(Connection connection = DriverManager.getConnection(url, user, password);
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        PreparedStatement preparedStatementUpdate = connection.prepareStatement(updateQuery))
-        {
+        try (Connection connection = ConnectionPool.getDataSourceConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(query);
+                PreparedStatement preparedStatementUpdate = connection.prepareStatement(updateQuery)) {
             preparedStatement.setLong(1, task.getId());
 
             ResultSet rs = preparedStatement.executeQuery();
             int minRestrictionLevel = 1;
             String license = "Public domain";
 
-            while(rs.next())
-            {
+            while (rs.next()) {
                 int actual = rs.getInt(2);
 
-                if(actual>minRestrictionLevel)
-                {
+                if (actual > minRestrictionLevel) {
                     license = rs.getString(1);
                 }
             }
@@ -162,13 +137,12 @@ public class TaskCreateUdatasetDAO {
             preparedStatementUpdate.setLong(2, task.getId());
 
             preparedStatementUpdate.executeUpdate();
+            //connection.close();
 
-        }
-        catch(SQLException sqlException)
-        {
+        } catch (SQLException sqlException) {
             sqlException.printStackTrace();
         }
 
     }
-    
+
 }

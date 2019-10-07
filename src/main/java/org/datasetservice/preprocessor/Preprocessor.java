@@ -22,6 +22,8 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.bdp4j.pipe.AbstractPipe;
 import org.bdp4j.pipe.Pipe;
@@ -32,6 +34,7 @@ import org.bdp4j.util.PipeInfo;
 import org.bdp4j.util.PipeProvider;
 import org.datasetservice.dao.DatasetDAO;
 import org.datasetservice.dao.FileDAO;
+import org.datasetservice.dao.TaskCreateUPreprocessingDAO;
 import org.datasetservice.dao.TaskCreateUdatasetDAO;
 import org.datasetservice.dao.TaskDAO;
 import org.datasetservice.domain.TaskCreateSdataset;
@@ -48,29 +51,20 @@ import org.w3c.dom.NodeList;
 
 /**
  * Class for perform system, user and preprocessing tasks
+ *
  * @author Ismael Vázqez
  */
 public class Preprocessor {
 
     /**
+     * For logging purposes
+     */
+    private static final Logger logger = LogManager.getLogger(Preprocessor.class);
+
+    /**
      * The file instances
      */
     private static ArrayList<Instance> instances;
-
-    /**
-     * The url to access the database
-     */
-    private String url;
-
-    /**
-     * The user to access the database
-     */
-    private String user;
-
-    /**
-     * The password to access the database
-     */
-    private String password;
 
     /**
      * The path of the dataset storage in file system
@@ -87,29 +81,25 @@ public class Preprocessor {
      */
     private String outputStorage;
 
-
-
     /**
      * Constructor for create instances of preprocessor objects
-     * @param url the url to connect the database
-     * @param user the user of the database
-     * @param password the password of the database
+     *
      * @param datasetStorage the path to the dataset storage
      * @param pipelineStorage the path to the pipeline storage
      * @param outputStorage the path to the csv storage
      */
-    public Preprocessor(String url, String user, String password, String datasetStorage, String pipelineStorage, String outputStorage) {
-        instances = new ArrayList<Instance>();
-        this.url = url;
-        this.user = user;
-        this.password = password;
+    public Preprocessor(String datasetStorage, String pipelineStorage, String outputStorage) {
+        instances = new ArrayList<>();
+
         this.datasetStorage = datasetStorage;
         this.pipelineStorage = pipelineStorage;
         this.outputStorage = outputStorage;
     }
 
     /**
-     * Execute a system task, extracting all metadata of the dataset and inserting in the database
+     * Execute a system task, extracting all metadata of the dataset and
+     * inserting in the database
+     *
      * @param task the system task
      * @return true if successfully completed, false in other case
      */
@@ -118,23 +108,20 @@ public class Preprocessor {
         String datasetName = task.getDataset().getName();
         String pathToDataset = datasetStorage.concat(File.separator + datasetName + ".zip");
         String pathDest = datasetStorage.concat(File.separator + datasetName);
-        TaskDAO taskDAO = new TaskDAO(url, user, password);
-        DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
-        FileDAO fileDAO = new FileDAO(url, user, password);
+        TaskDAO taskDAO = new TaskDAO();
+        DatasetDAO datasetDAO = new DatasetDAO();
+        FileDAO fileDAO = new FileDAO();
 
         if (Zip.unzip(pathToDataset, pathDest)) {
             Zip.delete(pathToDataset);
             taskDAO.changeState(null, "executing", task.getId());
 
             generateInstances(pathDest);
-            
-            
-            AbstractPipe p = new SerialPipes(new AbstractPipe[] { new TargetAssigningFromPathPipe(),
-                    new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe() });
-                    
-            
+
+            AbstractPipe p = new SerialPipes(new AbstractPipe[]{new TargetAssigningFromPathPipe(),
+                new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe()});
+
             p.pipeAll(instances);
-            
 
             for (Instance i : instances) {
                 org.datasetservice.domain.File file;
@@ -158,11 +145,11 @@ public class Preprocessor {
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.warn("[ERROR]: " + e.getMessage());
             }
             datasetDAO.setAvailable(datasetName, true);
         } else {
-            taskDAO.changeState("Failed to uncompress the dataset. Input path: "+pathToDataset+" Output path: "+pathDest+". Reason: "+Zip.getErrorMessage(), "failed", task.getId());
+            taskDAO.changeState("Failed to uncompress the dataset. Input path: " + pathToDataset + " Output path: " + pathDest + ". Reason: " + Zip.getErrorMessage(), "failed", task.getId());
             Zip.delete(pathToDataset);
         }
 
@@ -173,134 +160,129 @@ public class Preprocessor {
 
     /**
      * Execute a user task, combining datasets for generate a new one
+     *
      * @param task the user task
      * @return true if successfully completed, false in other case
      */
     public boolean preprocessUserTask(TaskCreateUdataset task) {
         boolean success = false;
 
-        DatasetDAO datasetDAO = new DatasetDAO(url, user, password);
-        TaskDAO taskDAO = new TaskDAO(url, user, password);
-        FileDAO fileDAO = new FileDAO(url, user, password);
+        DatasetDAO datasetDAO = new DatasetDAO();
+        TaskDAO taskDAO = new TaskDAO();
+        FileDAO fileDAO = new FileDAO();
 
-        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO(url, user, password);
+        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO();
 
-            if (fileDAO.posibleAfterFilters(task)) {
-                ArrayList<org.datasetservice.domain.File> files = fileDAO.getRandomFiles(task,
-                        task.getSpamMode());
+        if (fileDAO.posibleAfterFilters(task)) {
+            ArrayList<org.datasetservice.domain.File> files = fileDAO.getRandomFiles(task,
+                    task.getSpamMode());
 
-                ArrayList<org.datasetservice.domain.File> spamFiles = new ArrayList<org.datasetservice.domain.File>();
-                ArrayList<org.datasetservice.domain.File> hamFiles = new ArrayList<org.datasetservice.domain.File>();
+            ArrayList<org.datasetservice.domain.File> spamFiles = new ArrayList<org.datasetservice.domain.File>();
+            ArrayList<org.datasetservice.domain.File> hamFiles = new ArrayList<org.datasetservice.domain.File>();
 
-                for (org.datasetservice.domain.File file : files) {
-                    if (file.getType().equals("spam"))
-                        spamFiles.add(file);
-                    else
-                        hamFiles.add(file);
+            for (org.datasetservice.domain.File file : files) {
+                if (file.getType().equals("spam")) {
+                    spamFiles.add(file);
+                } else {
+                    hamFiles.add(file);
                 }
-
-                String datasetName = task.getDataset().getName();
-                File newDirectory = new File(datasetStorage + File.separator + datasetName);
-
-                if (!newDirectory.exists())
-                    newDirectory.mkdir();
-
-                File newDirectorySpam = new File(datasetStorage + File.separator + datasetName + File.separator + "_spam_");
-                File newDirectoryHam = new File(datasetStorage + File.separator + datasetName + File.separator + "_ham_");
-
-                if (!newDirectorySpam.exists())
-                    newDirectorySpam.mkdir();
-
-                if (!newDirectoryHam.exists())
-                    newDirectoryHam.mkdir();
-
-                for (org.datasetservice.domain.File spamFile : spamFiles) {
-                    String path = spamFile.getPath();
-                    int lastSeparator = path.lastIndexOf(File.separator);
-                    String fileName = path.substring(lastSeparator);
-                    String pathDest = newDirectorySpam.getAbsolutePath() + File.separator + fileName;
-
-                    copyFile(path, pathDest);
-                    fileDAO.insertFileById(spamFile, task.getDataset());
-                }
-
-                for (org.datasetservice.domain.File hamFile : hamFiles) {
-                    String path = hamFile.getPath();
-                    int lastSeparator = path.lastIndexOf(File.separator);
-                    String fileName = path.substring(lastSeparator);
-                    String pathDest = newDirectoryHam.getAbsolutePath() + File.separator + fileName;
-
-                    copyFile(path, pathDest);
-                    fileDAO.insertFileById(hamFile, task.getDataset());
-                }
-
-                Zip.zip(newDirectory.getAbsolutePath());
-
-                ArrayList<org.datasetservice.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
-
-                
-                int percentageSpam = this.calculatePercentage(datasetFiles);
-                int percentageHam = 100 - percentageSpam;
-                System.out.println("PERCENTAGE SPAM"+ percentageSpam);
-                System.out.println("PERCENTAGE HAM"+ percentageHam);
-                Date dateFrom = this.calculateDateFrom(datasetFiles);
-                Date dateTo = this.calculateDateTo(datasetFiles);
-
-                datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
-                taskCreateUdatasetDAO.stablishLicense(task);
-                taskDAO.changeState(null, "success", task.getId());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                datasetDAO.setAvailable(task.getDataset().getName(), true);
-            } 
-            else 
-            {
-                taskDAO.changeState("Not posible after filters", "failed", task.getId());
             }
 
+            String datasetName = task.getDataset().getName();
+            File newDirectory = new File(datasetStorage + File.separator + datasetName);
+
+            if (!newDirectory.exists()) {
+                newDirectory.mkdir();
+            }
+
+            File newDirectorySpam = new File(datasetStorage + File.separator + datasetName + File.separator + "_spam_");
+            File newDirectoryHam = new File(datasetStorage + File.separator + datasetName + File.separator + "_ham_");
+
+            if (!newDirectorySpam.exists()) {
+                newDirectorySpam.mkdir();
+            }
+
+            if (!newDirectoryHam.exists()) {
+                newDirectoryHam.mkdir();
+            }
+
+            for (org.datasetservice.domain.File spamFile : spamFiles) {
+                String path = spamFile.getPath();
+                int lastSeparator = path.lastIndexOf(File.separator);
+                String fileName = path.substring(lastSeparator);
+                String pathDest = newDirectorySpam.getAbsolutePath() + File.separator + fileName;
+
+                copyFile(path, pathDest);
+                fileDAO.insertFileById(spamFile, task.getDataset());
+            }
+
+            for (org.datasetservice.domain.File hamFile : hamFiles) {
+                String path = hamFile.getPath();
+                int lastSeparator = path.lastIndexOf(File.separator);
+                String fileName = path.substring(lastSeparator);
+                String pathDest = newDirectoryHam.getAbsolutePath() + File.separator + fileName;
+
+                copyFile(path, pathDest);
+                fileDAO.insertFileById(hamFile, task.getDataset());
+            }
+
+            Zip.zip(newDirectory.getAbsolutePath());
+
+            ArrayList<org.datasetservice.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
+
+            int percentageSpam = this.calculatePercentage(datasetFiles);
+            int percentageHam = 100 - percentageSpam;
+            System.out.println("PERCENTAGE SPAM" + percentageSpam);
+            System.out.println("PERCENTAGE HAM" + percentageHam);
+            Date dateFrom = this.calculateDateFrom(datasetFiles);
+            Date dateTo = this.calculateDateTo(datasetFiles);
+
+            datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
+            taskCreateUdatasetDAO.stablishLicense(task);
+            taskDAO.changeState(null, "success", task.getId());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                logger.warn("[ERROR]: " + e.getMessage());
+            }
+            datasetDAO.setAvailable(task.getDataset().getName(), true);
+        } else {
+            taskDAO.changeState("Not posible after filters", "failed", task.getId());
+        }
         return success;
     }
 
     /**
      * Execute preprocessing task, generating csv in output folder
+     *
      * @param task the task to execute
      * @return true if successfully completed, false in other case
      */
-    public boolean preprocessDataset(TaskCreateUPreprocessing task)
-    {
+    public boolean preprocessDataset(TaskCreateUPreprocessing task) {
         boolean success = false;
-        String xmlPath = pipelineStorage+task.getPreprocessDataset().getName()+task.getId()+".xml";
+        String xmlPath = pipelineStorage + task.getPreprocessDataset().getName() + task.getId() + ".xml";
         File file = new File(xmlPath);
-        TaskDAO taskDAO = new TaskDAO(url, user, password);
+        TaskDAO taskDAO = new TaskDAO();
 
         taskDAO.changeState(null, "executing", task.getId());
 
-        if(!file.exists())
-        {
+        if (!file.exists()) {
             FileOutputStream fos;
-            
-            try
-            {
+
+            try {
                 fos = new FileOutputStream(file);
                 fos.write(task.getPipeline());
                 fos.close();
-            }
-            catch(FileNotFoundException ioException)
-            {
+            } catch (FileNotFoundException fileNotFoundException) {
+                logger.warn("[ERROR]: " + fileNotFoundException.getMessage());
                 return success;
-            }
-            catch(IOException ioException)
-            {
+            } catch (IOException ioException) {
+                logger.warn("[ERROR]: " + ioException.getMessage());
                 return success;
             }
         }
 
-        
-        try
-        {
+        try {
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document document = dBuilder.parse(file);
@@ -308,42 +290,38 @@ public class Preprocessor {
             document.normalize();
 
             NodeList configNodes = document.getElementsByTagName("general");
-            for(int i = 0; i<configNodes.getLength();i++)
-            {
+            for (int i = 0; i < configNodes.getLength(); i++) {
                 Element element = (Element) configNodes.item(i);
                 element.getParentNode().removeChild(element);
             }
 
-            Element rootNode = (Element)document.getElementsByTagName("configuration").item(0);
-            
+            Element rootNode = (Element) document.getElementsByTagName("configuration").item(0);
+
             Element general = document.createElement("general");
             Element samplesFolder = document.createElement("samplesFolder");
-            samplesFolder.setTextContent(datasetStorage+task.getPreprocessDataset().getName());
+            samplesFolder.setTextContent(datasetStorage + task.getPreprocessDataset().getName());
             Element outputDir = document.createElement("outputFolder");
             outputDir.setTextContent(outputStorage);
             general.appendChild(samplesFolder);
             general.appendChild(outputDir);
             rootNode.appendChild(general);
-            
 
             Transformer tf = TransformerFactory.newInstance().newTransformer();
             tf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             tf.setOutputProperty(OutputKeys.INDENT, "yes");
             Writer out = new StringWriter();
             tf.transform(new DOMSource(document), new StreamResult(out));
-            
+
             file.delete();
-            FileWriter fileWriter = new FileWriter(new File(xmlPath));
-            fileWriter.write(out.toString());
-            System.out.println(out.toString());
-            fileWriter.close();
+            try (FileWriter fileWriter = new FileWriter(new File(xmlPath))) {
+                fileWriter.write(out.toString());
+                System.out.println(out.toString());
+            }
 
+        } catch (Exception e) {
+            logger.warn("[ERROR]: " + e.getMessage());
         }
-        catch(Exception e)
-        {
 
-        }
-        
         Configurator configurator = Configurator.getInstance(xmlPath);
 
         configurator.configureApp();
@@ -361,18 +339,14 @@ public class Preprocessor {
         p.pipeAll(instances);
         resetInstances();
 
-        File csv = new File(outputStorage+"output.csv");
+        File csv = new File(outputStorage + "output.csv");
 
-        if(csv.renameTo(new File(outputStorage+task.getPreprocessDataset().getName()+task.getId()+".csv")))
-        {
+        if (csv.renameTo(new File(outputStorage + task.getPreprocessDataset().getName() + task.getId() + ".csv"))) {
             taskDAO.changeState(null, "success", task.getId());
-        }
-        else
-        {
+        } else {
             taskDAO.changeState(null, "failed", task.getId());
         }
-        
-        
+
         return success;
     }
 
@@ -392,15 +366,13 @@ public class Preprocessor {
                 fos.write(buffer, 0, length);
             }
         } catch (IOException ioException) {
-            ioException.printStackTrace();
+            logger.warn("[ERROR]: " + ioException.getMessage());
         }
-
     }
 
-
     /**
-     * Generate a instance List on instances attribute by recursivelly finding all
-     * files included in testDir directory
+     * Generate a instance List on instances attribute by recursivelly finding
+     * all files included in testDir directory
      *
      * @param testDir The directory where the instances should be loaded
      */
@@ -408,6 +380,7 @@ public class Preprocessor {
         try {
             Files.walk(Paths.get(testDir)).filter(Files::isRegularFile).forEach(FileMng::visit);
         } catch (IOException e) {
+            logger.fatal("[ERROR]: " + e.getMessage());
             System.exit(0);
         }
     }
@@ -422,6 +395,7 @@ public class Preprocessor {
 
     /**
      * Obtain data of an instance
+     *
      * @param i the instance
      * @return the generated file based on instance data
      */
@@ -433,24 +407,24 @@ public class Preprocessor {
             String language = i.getProperty("language").toString();
             Date date = null;
 
-            if(!(i.getProperty("date") instanceof String))
-            {
+            if (!(i.getProperty("date") instanceof String)) {
                 date = (Date) i.getProperty("date");
             }
-            
+
             String finalExtension = "." + extension;
 
             org.datasetservice.domain.File file = new org.datasetservice.domain.File(path, type, language, date,
                     finalExtension);
             return file;
         } catch (NullPointerException npException) {
+            logger.warn("[ERROR]: " + npException.getMessage());
             return null;
         }
-
     }
 
     /**
      * Calculate percentage of spam for the specified files
+     *
      * @param datasetFiles the files of the dataset
      * @return the percentage of spam
      */
@@ -459,11 +433,7 @@ public class Preprocessor {
         int spamFiles = 0;
         int spamPercentage = 0;
 
-        for (org.datasetservice.domain.File file : datasetFiles) {
-            if (file.getType().equals("spam")) {
-                spamFiles++;
-            }
-        }
+        spamFiles = datasetFiles.stream().filter((file) -> (file.getType().equals("spam"))).map((_item) -> 1).reduce(spamFiles, Integer::sum);
 
         spamPercentage = (int) Math.ceil((double) spamFiles * 100.00 / (double) total);
 
@@ -472,6 +442,7 @@ public class Preprocessor {
 
     /**
      * Calculate initial messages date
+     *
      * @param datasetFiles the dataset files
      * @return the initial messages date
      */
@@ -484,14 +455,16 @@ public class Preprocessor {
             }
         }
 
-        if(actualDate.equals(new Date(Long.MAX_VALUE)))
+        if (actualDate.equals(new Date(Long.MAX_VALUE))) {
             actualDate = null;
+        }
 
         return actualDate;
     }
 
     /**
      * Calculate final messages date
+     *
      * @param datasetFiles the dataset files
      * @return the final messages date
      */
@@ -499,12 +472,13 @@ public class Preprocessor {
         Date actualDate = new Date(Long.MIN_VALUE);
 
         for (org.datasetservice.domain.File file : datasetFiles) {
-            if (file.getDate()!=null && file.getDate().compareTo(actualDate) > 0) {
+            if (file.getDate() != null && file.getDate().compareTo(actualDate) > 0) {
                 actualDate = file.getDate();
             }
         }
-        if(actualDate.equals(new Date(Long.MIN_VALUE)))
+        if (actualDate.equals(new Date(Long.MIN_VALUE))) {
             actualDate = null;
+        }
 
         return actualDate;
     }
@@ -516,7 +490,7 @@ public class Preprocessor {
     static class FileMng {
 
         /**
-         * Include a filne in the instancelist
+         * Include a file in the instancelist
          *
          * @param path The path of the file
          */
