@@ -33,7 +33,7 @@ public class Main {
 
         Long startTime = System.currentTimeMillis();
         while (true) {
-            if ((CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime)>0))
+            if ((CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime)>10))
                 Thread.sleep(CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
             System.out.println(ConnectionPool.getDataSource().getNumActive() + "/" + ConnectionPool.getDataSource().getNumIdle());

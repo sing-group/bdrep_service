@@ -405,13 +405,14 @@ public class FileDAO {
         System.out.println("----------------------------------------------------------------");
         System.out.println(language);
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_languages(dataset_name, language) values(?, ?)");) {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO dataset_languages(dataset_name, language) VALUES (?, ?)");) {
+                //PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_languages(dataset_name, language) values(?, ?)");) {
             preparedStatement.setString(1, datasetName);
             preparedStatement.setString(2, language);
 
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-         //   logger.warn("[ERROR insertLanguageFile]: " + sqlException.getMessage());
+            logger.warn("[ERROR insertLanguageFile]: " + sqlException.getMessage());
         }
     }
 
@@ -425,13 +426,14 @@ public class FileDAO {
         System.out.println("----------------------------------------------------------------");
         System.out.println(datatype);
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_datatypes(dataset_name, data_type) values(?, ?)")) {
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO dataset_datatypes(dataset_name, data_type) VALUES (?, ?)")) {
+            //PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_datatypes(dataset_name, data_type) values(?, ?)")) {
             preparedStatement.setString(1, datasetName);
             preparedStatement.setString(2, datatype);
 
             preparedStatement.executeUpdate();
         } catch (SQLException sqlException) {
-            logger.warn("[ERROR insertDatatypeFile]: " + sqlException.getMessage());
+            logger.warn("ERROR insertDatatypeFile [datasetName:"+datasetName+", datatype: "+datatype + "]" + sqlException.getMessage());
         }
     }
 }
