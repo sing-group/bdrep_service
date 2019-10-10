@@ -1,16 +1,16 @@
-package org.datasetservice;
+package org.strep.service;
 
 import java.util.ArrayList;
 import java.util.Properties;
 
-import org.datasetservice.dao.TaskCreateSdatasetDAO;
-import org.datasetservice.dao.TaskCreateUPreprocessingDAO;
-import org.datasetservice.dao.TaskCreateUdatasetDAO;
-import org.datasetservice.dao.ConnectionPool;
-import org.datasetservice.domain.TaskCreateSdataset;
-import org.datasetservice.domain.TaskCreateUPreprocessing;
-import org.datasetservice.domain.TaskCreateUdataset;
-import org.datasetservice.preprocessor.Preprocessor;
+import org.strep.service.dao.TaskCreateSdatasetDAO;
+import org.strep.service.dao.TaskCreateUPreprocessingDAO;
+import org.strep.service.dao.TaskCreateUdatasetDAO;
+import org.strep.service.dao.ConnectionPool;
+import org.strep.service.domain.TaskCreateSdataset;
+import org.strep.service.domain.TaskCreateUPreprocessing;
+import org.strep.service.domain.TaskCreateUdataset;
+import org.strep.service.preprocessor.Preprocessor;
 
 
 public class Main {

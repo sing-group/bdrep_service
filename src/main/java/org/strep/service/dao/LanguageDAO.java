@@ -1,4 +1,4 @@
-package org.datasetservice.dao;
+package org.strep.service.dao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import org.datasetservice.domain.Language;
+import org.strep.service.domain.Language;
 
 /**
  * Data access object for Language

@@ -1,4 +1,4 @@
-package org.datasetservice.domain;
+package org.strep.service.domain;
 
 import java.util.Set;
 

@@ -1,4 +1,4 @@
-package org.datasetservice.dao;
+package org.strep.service.dao;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -6,8 +6,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-import org.datasetservice.domain.Dataset;
-import org.datasetservice.domain.TaskCreateSdataset;
+import org.strep.service.domain.Dataset;
+import org.strep.service.domain.TaskCreateSdataset;
 
 /**
  * Data access object for system tasks

@@ -1,4 +1,4 @@
-package org.datasetservice.domain;
+package org.strep.service.domain;
 
 /**
  * JPA Bean for the Dataset objects managed by application

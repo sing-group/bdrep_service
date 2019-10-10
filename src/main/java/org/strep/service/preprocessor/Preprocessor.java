@@ -1,4 +1,4 @@
-package org.datasetservice.preprocessor;
+package org.strep.service.preprocessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,14 +32,14 @@ import org.bdp4j.types.Instance;
 import org.bdp4j.util.Configurator;
 import org.bdp4j.util.PipeInfo;
 import org.bdp4j.util.PipeProvider;
-import org.datasetservice.dao.DatasetDAO;
-import org.datasetservice.dao.FileDAO;
-import org.datasetservice.dao.TaskCreateUPreprocessingDAO;
-import org.datasetservice.dao.TaskCreateUdatasetDAO;
-import org.datasetservice.dao.TaskDAO;
-import org.datasetservice.domain.TaskCreateSdataset;
-import org.datasetservice.domain.TaskCreateUPreprocessing;
-import org.datasetservice.domain.TaskCreateUdataset;
+import org.strep.service.dao.DatasetDAO;
+import org.strep.service.dao.FileDAO;
+import org.strep.service.dao.TaskCreateUPreprocessingDAO;
+import org.strep.service.dao.TaskCreateUdatasetDAO;
+import org.strep.service.dao.TaskDAO;
+import org.strep.service.domain.TaskCreateSdataset;
+import org.strep.service.domain.TaskCreateUPreprocessing;
+import org.strep.service.domain.TaskCreateUdataset;
 import org.nlpa.pipe.impl.File2StringBufferPipe;
 import org.nlpa.pipe.impl.GuessDateFromFilePipe;
 import org.nlpa.pipe.impl.GuessLanguageFromStringBufferPipe;
@@ -124,14 +124,14 @@ public class Preprocessor {
             p.pipeAll(instances);
 
             for (Instance i : instances) {
-                org.datasetservice.domain.File file;
+                org.strep.service.domain.File file;
 
                 if ((file = retrieveInstanceData(i)) != null) {
                     fileDAO.insertDatasetFile(file, task.getDataset());
                 }
             }
 
-            ArrayList<org.datasetservice.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
+            ArrayList<org.strep.service.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
 
             int percentageSpam = this.calculatePercentage(datasetFiles);
             int percentageHam = 100 - percentageSpam;
@@ -174,13 +174,13 @@ public class Preprocessor {
         TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO();
 
         if (fileDAO.posibleAfterFilters(task)) {
-            ArrayList<org.datasetservice.domain.File> files = fileDAO.getRandomFiles(task,
+            ArrayList<org.strep.service.domain.File> files = fileDAO.getRandomFiles(task,
                     task.getSpamMode());
 
-            ArrayList<org.datasetservice.domain.File> spamFiles = new ArrayList<org.datasetservice.domain.File>();
-            ArrayList<org.datasetservice.domain.File> hamFiles = new ArrayList<org.datasetservice.domain.File>();
+            ArrayList<org.strep.service.domain.File> spamFiles = new ArrayList<org.strep.service.domain.File>();
+            ArrayList<org.strep.service.domain.File> hamFiles = new ArrayList<org.strep.service.domain.File>();
 
-            for (org.datasetservice.domain.File file : files) {
+            for (org.strep.service.domain.File file : files) {
                 if (file.getType().equals("spam")) {
                     spamFiles.add(file);
                 } else {
@@ -206,7 +206,7 @@ public class Preprocessor {
                 newDirectoryHam.mkdir();
             }
 
-            for (org.datasetservice.domain.File spamFile : spamFiles) {
+            for (org.strep.service.domain.File spamFile : spamFiles) {
                 String path = spamFile.getPath();
                 int lastSeparator = path.lastIndexOf(File.separator);
                 String fileName = path.substring(lastSeparator);
@@ -216,7 +216,7 @@ public class Preprocessor {
                 fileDAO.insertFileById(spamFile, task.getDataset());
             }
 
-            for (org.datasetservice.domain.File hamFile : hamFiles) {
+            for (org.strep.service.domain.File hamFile : hamFiles) {
                 String path = hamFile.getPath();
                 int lastSeparator = path.lastIndexOf(File.separator);
                 String fileName = path.substring(lastSeparator);
@@ -228,7 +228,7 @@ public class Preprocessor {
 
             Zip.zip(newDirectory.getAbsolutePath());
 
-            ArrayList<org.datasetservice.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
+            ArrayList<org.strep.service.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
 
             int percentageSpam = this.calculatePercentage(datasetFiles);
             int percentageHam = 100 - percentageSpam;
@@ -399,7 +399,7 @@ public class Preprocessor {
      * @param i the instance
      * @return the generated file based on instance data
      */
-    private org.datasetservice.domain.File retrieveInstanceData(Instance i) {
+    private org.strep.service.domain.File retrieveInstanceData(Instance i) {
         try {
             String path = i.getName().toString();
             String type = i.getTarget().toString();
@@ -413,7 +413,7 @@ public class Preprocessor {
 
             String finalExtension = "." + extension;
 
-            org.datasetservice.domain.File file = new org.datasetservice.domain.File(path, type, language, date,
+            org.strep.service.domain.File file = new org.strep.service.domain.File(path, type, language, date,
                     finalExtension);
             return file;
         } catch (NullPointerException npException) {
@@ -428,7 +428,7 @@ public class Preprocessor {
      * @param datasetFiles the files of the dataset
      * @return the percentage of spam
      */
-    private int calculatePercentage(ArrayList<org.datasetservice.domain.File> datasetFiles) {
+    private int calculatePercentage(ArrayList<org.strep.service.domain.File> datasetFiles) {
         int total = datasetFiles.size();
         int spamFiles = 0;
         int spamPercentage = 0;
@@ -446,10 +446,10 @@ public class Preprocessor {
      * @param datasetFiles the dataset files
      * @return the initial messages date
      */
-    private Date calculateDateFrom(ArrayList<org.datasetservice.domain.File> datasetFiles) {
+    private Date calculateDateFrom(ArrayList<org.strep.service.domain.File> datasetFiles) {
         Date actualDate = new Date(Long.MAX_VALUE);
 
-        for (org.datasetservice.domain.File file : datasetFiles) {
+        for (org.strep.service.domain.File file : datasetFiles) {
             if (file.getDate() != null && file.getDate().compareTo(actualDate) < 0) {
                 actualDate = file.getDate();
             }
@@ -468,10 +468,10 @@ public class Preprocessor {
      * @param datasetFiles the dataset files
      * @return the final messages date
      */
-    private Date calculateDateTo(ArrayList<org.datasetservice.domain.File> datasetFiles) {
+    private Date calculateDateTo(ArrayList<org.strep.service.domain.File> datasetFiles) {
         Date actualDate = new Date(Long.MIN_VALUE);
 
-        for (org.datasetservice.domain.File file : datasetFiles) {
+        for (org.strep.service.domain.File file : datasetFiles) {
             if (file.getDate() != null && file.getDate().compareTo(actualDate) > 0) {
                 actualDate = file.getDate();
             }

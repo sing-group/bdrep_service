@@ -1,4 +1,4 @@
-package org.datasetservice.dao;
+package org.strep.service.dao;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,11 +11,11 @@ import java.util.Date;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
-import org.datasetservice.domain.Dataset;
-import org.datasetservice.domain.Datatype;
-import org.datasetservice.domain.Language;
-import org.datasetservice.domain.License;
-import org.datasetservice.domain.TaskCreateUdataset;
+import org.strep.service.domain.Dataset;
+import org.strep.service.domain.Datatype;
+import org.strep.service.domain.Language;
+import org.strep.service.domain.License;
+import org.strep.service.domain.TaskCreateUdataset;
 
 /**
  * The user tasks data access object
