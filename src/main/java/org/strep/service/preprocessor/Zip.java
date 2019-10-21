@@ -83,7 +83,8 @@ public class Zip
         }
         catch(IOException ioException)
         {
-            ioException.printStackTrace();
+            System.out.println("IO Exception caugth: "+ioException.getMessage());
+            //ioException.printStackTrace();
         }
     }
 

@@ -362,6 +362,7 @@ public class Preprocessor {
             p.pipeAll(instances);
         }catch (RuntimeException e){
             taskDAO.changeState(e.getMessage(), "failed", task.getId());
+            
             return success;
         }
 
