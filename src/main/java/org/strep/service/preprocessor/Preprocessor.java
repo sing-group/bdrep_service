@@ -118,10 +118,24 @@ public class Preprocessor {
 
             generateInstances(pathDest);
 
-            AbstractPipe p = new SerialPipes(new AbstractPipe[]{new TargetAssigningFromPathPipe(),
+            Configurator.setActionOnIrrecoverableError(new Runnable(){
+
+                @Override
+                public void run() {
+                    throw new RuntimeException(Configurator.getIrrecoverableErrorInfo());
+                }
+
+            });
+
+            try {            
+                AbstractPipe p = new SerialPipes(new AbstractPipe[]{new TargetAssigningFromPathPipe(),
                 new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe()});
 
-            p.pipeAll(instances);
+                p.pipeAll(instances);
+            }catch(RuntimeException e){
+                //Change the state to fail and specify the message created by BDP4J
+                taskDAO.changeState(e.getMessage(), "failed", task.getId());
+            }
 
             for (Instance i : instances) {
                 org.strep.service.domain.File file;
@@ -322,29 +336,45 @@ public class Preprocessor {
             logger.warn("[ERROR]: " + e.getMessage());
         }
 
-        Configurator configurator = Configurator.getInstance(xmlPath);
+        Configurator.setActionOnIrrecoverableError(new Runnable(){
 
-        configurator.configureApp();
+            @Override
+            public void run() {
+                throw new RuntimeException(Configurator.getIrrecoverableErrorInfo());
+            }
 
-        System.out.println(configurator.getProp(Configurator.SAMPLES_FOLDER));
-        System.out.println(configurator.getProp(Configurator.OUTPUT_FOLDER));
+        });
+        try{
+            Configurator configurator = Configurator.getInstance(xmlPath);
 
-        PipeProvider pipeProvider = new PipeProvider(configurator.getProp(Configurator.PLUGINS_FOLDER));
-        HashMap<String, PipeInfo> pipes = pipeProvider.getPipes();
+            configurator.configureApp();
 
-        Pipe p = configurator.configurePipeline(pipes);
+            System.out.println(configurator.getProp(Configurator.SAMPLES_FOLDER));
+            System.out.println(configurator.getProp(Configurator.OUTPUT_FOLDER));
 
-        generateInstances(configurator.getProp(Configurator.SAMPLES_FOLDER));
+            PipeProvider pipeProvider = new PipeProvider(configurator.getProp(Configurator.PLUGINS_FOLDER));
+            HashMap<String, PipeInfo> pipes = pipeProvider.getPipes();
 
-        p.pipeAll(instances);
+            Pipe p = configurator.configurePipeline(pipes);
+
+            generateInstances(configurator.getProp(Configurator.SAMPLES_FOLDER));
+
+            p.pipeAll(instances);
+        }catch (RuntimeException e){
+            taskDAO.changeState(e.getMessage(), "failed", task.getId());
+            return success;
+        }
+
         resetInstances();
-
+        //Todo: no tiene porque ser output.csv a menos que andemos urgando. 
+        //comprobar que es output.csv.m
         File csv = new File(outputStorage + "output.csv");
 
         if (csv.renameTo(new File(outputStorage + task.getPreprocessDataset().getName() + task.getId() + ".csv"))) {
             taskDAO.changeState(null, "success", task.getId());
+            success=true;
         } else {
-            taskDAO.changeState(null, "failed", task.getId());
+            taskDAO.changeState("No CSV output file was found.", "failed", task.getId());
         }
 
         return success;
