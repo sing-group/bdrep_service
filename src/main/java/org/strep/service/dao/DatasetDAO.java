@@ -38,12 +38,16 @@ public class DatasetDAO {
         Dataset dataset = new Dataset();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from dataset where task_id=?");) {
+                
+            //PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from dataset where task_id=?");) {
+            PreparedStatement preparedStatement = connection.prepareStatement(
+            "select dataset.name as dname from task,dataset where task.dataset_name=dataset.name and task.id=? and (task.id in (select id from task_create_sdataset) or task.id in (select id from task_create_udataset))"
+            );){
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-                dataset.setName(rs.getString(1));
+                dataset.setName(rs.getString("dname"));
             }
         } catch (SQLException sqlException) {
             logger.warn("[ERROR getDatasetByTaskId]: " + sqlException.getMessage());
