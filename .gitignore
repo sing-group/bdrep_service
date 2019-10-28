@@ -7,3 +7,7 @@
 .settings
 /plugins/
 .DS_Store
+
+resources/jlt/
+
+resources/wnplusplus/
