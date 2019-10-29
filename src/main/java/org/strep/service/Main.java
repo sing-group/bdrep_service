@@ -6,7 +6,6 @@ import java.util.Properties;
 import org.strep.service.dao.TaskCreateSdatasetDAO;
 import org.strep.service.dao.TaskCreateUPreprocessingDAO;
 import org.strep.service.dao.TaskCreateUdatasetDAO;
-import org.strep.service.dao.ConnectionPool;
 import org.strep.service.domain.TaskCreateSdataset;
 import org.strep.service.domain.TaskCreateUPreprocessing;
 import org.strep.service.domain.TaskCreateUdataset;
@@ -29,14 +28,13 @@ public class Main {
         TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO();
         TaskCreateUPreprocessingDAO taskCreateUPreprocessingDAO = new TaskCreateUPreprocessingDAO();
 
-        System.out.println("Waiting for tasks");
+        System.out.println("[STRep Service] Waiting for tasks...");
 
         Long startTime = System.currentTimeMillis();
         while (true) {
             if ((CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime)>10))
                 Thread.sleep(CHECK_INTERVAL_MS - (System.currentTimeMillis() - startTime));
             startTime = System.currentTimeMillis();
-            System.out.println(ConnectionPool.getDataSource().getNumActive() + "/" + ConnectionPool.getDataSource().getNumIdle());
 
             ArrayList<TaskCreateSdataset> waitingSTasks = taskCreateSdatasetDAO.getWaitingSystemTasks();
 

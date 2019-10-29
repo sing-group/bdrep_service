@@ -34,7 +34,7 @@ import org.bdp4j.util.PipeInfo;
 import org.bdp4j.util.PipeProvider;
 import org.strep.service.dao.DatasetDAO;
 import org.strep.service.dao.FileDAO;
-import org.strep.service.dao.TaskCreateUPreprocessingDAO;
+//import org.strep.service.dao.TaskCreateUPreprocessingDAO;
 import org.strep.service.dao.TaskCreateUdatasetDAO;
 import org.strep.service.dao.TaskDAO;
 import org.strep.service.domain.TaskCreateSdataset;
@@ -128,8 +128,13 @@ public class Preprocessor {
             });
 
             try {            
-                AbstractPipe p = new SerialPipes(new AbstractPipe[]{new TargetAssigningFromPathPipe(),
-                new StoreFileExtensionPipe(), new GuessDateFromFilePipe(), new File2StringBufferPipe(), new GuessLanguageFromStringBufferPipe()});
+                AbstractPipe p = new SerialPipes(new AbstractPipe[]{
+                    new TargetAssigningFromPathPipe(),
+                    new StoreFileExtensionPipe(), 
+                    new GuessDateFromFilePipe(), 
+                    new File2StringBufferPipe(), 
+                    new GuessLanguageFromStringBufferPipe()
+                });
 
                 p.pipeAll(instances);
             }catch(RuntimeException e){
@@ -367,7 +372,7 @@ public class Preprocessor {
         }
 
         resetInstances();
-        //Todo: no tiene porque ser output.csv a menos que andemos urgando. 
+        //TODO: no tiene porque ser output.csv a menos que andemos urgando. 
         //comprobar que es output.csv.m
         File csv = new File(outputStorage + "output.csv");
 
