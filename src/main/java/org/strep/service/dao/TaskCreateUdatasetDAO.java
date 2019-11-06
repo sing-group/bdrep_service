@@ -1,7 +1,6 @@
 package org.strep.service.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -114,7 +113,8 @@ public class TaskCreateUdatasetDAO {
         String query = "select l.name, l.restriction_level from license l inner join dataset d on l.name=d.id "
                 + "where d.name in (select dt.dataset from task_create_udataset t inner join task_create_udataset_datasets dt on dt.task_id=t.id where t.id=?)";
 
-        String updateQuery = "update dataset set id=? where task_id=?";
+        //String updateQuery = "update dataset set id=? where task_id=?";
+        String updateQuery = "update dataset set id=? where name in (select dataset_name from task where id=?)";
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(query);
