@@ -42,8 +42,8 @@ public class TaskCreateUdatasetDAO {
 
         String query = "select t.id, t.message, t.state, ud.limit_ham_percentage_eml,"
                 + "ud.limit_spam_percentage_eml, ud.limit_ham_percentage_twtid, ud.limit_spam_percentage_twtid,"
-                + "ud.limit_ham_percentage_tsms, ud.limit_spam_percentage_tsms,ud.limit_ham_percentage_tytb,"
-                + "ud.limit_spam_percentage_tytb, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"
+                + "ud.limit_ham_percentage_tsms, ud.limit_spam_percentage_tsms,ud.limit_ham_percentage_ytbid,"
+                + "ud.limit_spam_percentage_ytbid, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"
                 + "ud.limit_number_of_files, ud.limit_percentage_spam, ud.spam_mode, ud.date_to, ud.date_from "
                 + "from task_create_udataset ud inner join task t on t.id = ud.id where t.state='waiting'";
         try (Connection connection = ConnectionPool.getDataSourceConnection();
