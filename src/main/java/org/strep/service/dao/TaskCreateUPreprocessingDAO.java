@@ -36,8 +36,8 @@ public class TaskCreateUPreprocessingDAO {
         ArrayList<TaskCreateUPreprocessing> tasks = new ArrayList<>();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("select t.id, state, description, pipeline, date, preprocess_dataset_name"
-                        + " from task_createupreprocessing tp inner join task t on tp.id=t.id where t.state='waiting'")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT t.id, state, description, pipeline, date, preprocess_dataset_name"
+                        + " FROM task_createupreprocessing tp INNER JOIN task t ON tp.id=t.id WHERE t.state='waiting'")) {
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {

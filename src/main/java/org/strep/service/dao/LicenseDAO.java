@@ -1,7 +1,6 @@
 package org.strep.service.dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,7 +36,7 @@ public class LicenseDAO {
         ArrayList<License> licenses = new ArrayList<>();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("select license from taskcreateudataset_licenses where task_id=?")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT license FROM taskcreateudataset_licenses WHERE task_id=?")) {
             preparedStatement.setLong(1, id);
 
             ResultSet rs = preparedStatement.executeQuery();

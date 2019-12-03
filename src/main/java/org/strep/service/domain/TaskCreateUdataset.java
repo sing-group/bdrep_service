@@ -18,9 +18,9 @@ public class TaskCreateUdataset extends Task {
 
     private int limitHamPercentageTwtid;
 
-    private int limitSpamPercentageTytb;
+    private int limitSpamPercentageYtbid;
 
-    private int limitHamPercentageTytb;
+    private int limitHamPercentageYtbid;
 
     private int limitSpamPercentageWarc;
 
@@ -118,8 +118,8 @@ public class TaskCreateUdataset extends Task {
         this.limitHamPercentageTwtid = limitHamPercentageTwtid;
         this.limitSpamPercentageWarc = limitSpamPercentageWarc;
         this.limitHamPercentageWarc = limitHamPercentageWarc;
-        this.limitSpamPercentageTytb = limitSpamPercentageTytb;
-        this.limitHamPercentageTytb = limitHamPercentageTytb;
+        this.limitSpamPercentageYtbid = limitSpamPercentageTytb;
+        this.limitHamPercentageYtbid = limitHamPercentageTytb;
         this.limitPercentageSpam = limitPercentageSpam;
         this.limitNumberOfFiles = limitNumberOfFiles;
         this.dateFrom = dateFrom;
@@ -348,20 +348,20 @@ public class TaskCreateUdataset extends Task {
         this.limitHamPercentageTsms = limitHamPercentageTsms;
     }
 
-    public int getLimitSpamPercentageTytb() {
-        return this.limitSpamPercentageTytb;
+    public int getLimitSpamPercentageYtbid() {
+        return this.limitSpamPercentageYtbid;
     }
 
     public void setLimitSpamPercentageTytb(int limitSpamPercentageTytb) {
-        this.limitSpamPercentageTytb = limitSpamPercentageTytb;
+        this.limitSpamPercentageYtbid = limitSpamPercentageTytb;
     }
 
-    public int getLimitHamPercentageTytb() {
-        return this.limitHamPercentageTytb;
+    public int getLimitHamPercentageYtbid() {
+        return this.limitHamPercentageYtbid;
     }
 
-    public void setLimitHamPercentageTytb(int limitHamPercentageTytb) {
-        this.limitHamPercentageTytb = limitHamPercentageTytb;
+    public void setLimitHamPercentageYtbid(int limitHamPercentageYtbid) {
+        this.limitHamPercentageYtbid = limitHamPercentageYtbid;
     }
 
     public int getLimitSpamPercentageTwtid() {
@@ -452,12 +452,12 @@ public class TaskCreateUdataset extends Task {
         stringBuilder.append("% Spam .warc: ").append(this.limitSpamPercentageWarc).append("\n");
         stringBuilder.append("% Spam .tsms: ").append(this.limitSpamPercentageTsms).append("\n");
         stringBuilder.append("% Spam .twtid: ").append(this.limitSpamPercentageTwtid).append("\n");
-        stringBuilder.append("% Spam .tytb: ").append(this.limitSpamPercentageTytb).append("\n");
+        stringBuilder.append("% Spam .ytbid: ").append(this.limitSpamPercentageYtbid).append("\n");
         stringBuilder.append("% Ham .eml: ").append(this.limitHamPercentageEml).append("\n");
         stringBuilder.append("% Ham .warc: ").append(this.limitHamPercentageWarc).append("\n");
         stringBuilder.append("% Ham .tsms: ").append(this.limitHamPercentageTsms).append("\n");
         stringBuilder.append("% Ham .twtid: ").append(this.limitHamPercentageTwtid).append("\n");
-        stringBuilder.append("% Ham .tytb: ").append(this.limitHamPercentageTytb).append("\n");
+        stringBuilder.append("% Ham .ytbid: ").append(this.limitHamPercentageYtbid).append("\n");
 
         return stringBuilder.toString();
     }

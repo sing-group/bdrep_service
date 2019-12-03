@@ -40,12 +40,12 @@ public class TaskCreateUdatasetDAO {
     public ArrayList<TaskCreateUdataset> getWaitingUserTasks() {
         ArrayList<TaskCreateUdataset> waitingUtasks = new ArrayList<>();
 
-        String query = "select t.id, t.message, t.state, ud.limit_ham_percentage_eml,"
+        String query = "SELECT t.id, t.message, t.state, ud.limit_ham_percentage_eml,"
                 + "ud.limit_spam_percentage_eml, ud.limit_ham_percentage_twtid, ud.limit_spam_percentage_twtid,"
                 + "ud.limit_ham_percentage_tsms, ud.limit_spam_percentage_tsms,ud.limit_ham_percentage_ytbid,"
                 + "ud.limit_spam_percentage_ytbid, ud.limit_ham_percentage_warc, ud.limit_spam_percentage_warc,"
                 + "ud.limit_number_of_files, ud.limit_percentage_spam, ud.spam_mode, ud.date_to, ud.date_from "
-                + "from task_create_udataset ud inner join task t on t.id = ud.id where t.state='waiting'";
+                + "FROM task_create_udataset ud INNER JOIN task t ON t.id = ud.id WHERE t.state='waiting'";
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 Statement st = connection.createStatement();
                 ResultSet rs = st.executeQuery(query)) {
@@ -78,8 +78,8 @@ public class TaskCreateUdatasetDAO {
                     int limitSpamPercentageWarc = rs.getInt(13);
                     int limitHamPercentageWarc = rs.getInt(12);
 
-                    int limitSpamPercentageTytb = rs.getInt(11);
-                    int limitHamPercentageTytb = rs.getInt(10);
+                    int limitSpamPercentageYtbid = rs.getInt(11);
+                    int limitHamPercentageYtbid = rs.getInt(10);
 
                     int limitSpamPercentageTsms = rs.getInt(9);
                     int limitHamPercentageTsms = rs.getInt(8);
@@ -91,7 +91,7 @@ public class TaskCreateUdatasetDAO {
 
                     TaskCreateUdataset taskCreateUdataset = new TaskCreateUdataset(taskId, dataset, state, message, limitPercentageSpam, limitNumberOfFiles,
                             dateFrom, dateTo, languages, datatypes, licenses, datasets, limitSpamPercentageEml, limitHamPercentageEml, limitSpamPercentageWarc,
-                            limitHamPercentageWarc, limitSpamPercentageTytb, limitHamPercentageTytb, limitSpamPercentageTsms, limitHamPercentageTsms, limitSpamPercentageTwtid,
+                            limitHamPercentageWarc, limitSpamPercentageYtbid, limitHamPercentageYtbid, limitSpamPercentageTsms, limitHamPercentageTsms, limitSpamPercentageTwtid,
                             limitHamPercentageTwtid, spamMode);
 
                     waitingUtasks.add(taskCreateUdataset);
@@ -110,11 +110,11 @@ public class TaskCreateUdatasetDAO {
      * @param task the task to stablish the license
      */
     public void stablishLicense(TaskCreateUdataset task) {
-        String query = "select l.name, l.restriction_level from license l inner join dataset d on l.name=d.id "
-                + "where d.name in (select dt.dataset from task_create_udataset t inner join task_create_udataset_datasets dt on dt.task_id=t.id where t.id=?)";
+        String query = "SELECT l.name, l.restriction_level FROM license l INNER JOIN dataset d ON l.name=d.id "
+                + "WHERE d.name IN (SELECT dt.dataset FROM task_create_udataset t INNER JOIN task_create_udataset_datasets dt ON dt.task_id=t.id WHERE t.id=?)";
 
         //String updateQuery = "update dataset set id=? where task_id=?";
-        String updateQuery = "update dataset set id=? where name in (select dataset_name from task where id=?)";
+        String updateQuery = "UPDATE dataset SET id=? WHERE name IN (SELECT dataset_name FROM task WHERE id=?)";
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(query);

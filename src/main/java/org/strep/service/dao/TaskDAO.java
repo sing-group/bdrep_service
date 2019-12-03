@@ -56,7 +56,7 @@ public class TaskDAO {
      */
     public void changeState(String message, String state, Long id) {
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("UPDATE task SET message = ?, state = ? where id = ?")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("UPDATE task SET message = ?, state = ? WHERE id = ?")) {
             preparedStatement.setString(1, message);
             preparedStatement.setString(2, state);
             preparedStatement.setLong(3, id);

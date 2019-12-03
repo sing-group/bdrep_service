@@ -34,7 +34,7 @@ public class TaskCreateSdatasetDAO {
     public ArrayList<TaskCreateSdataset> getWaitingSystemTasks() throws Exception {
         ArrayList<TaskCreateSdataset> waitingSystemTasks = new ArrayList<>();
 
-        String query = "select t.id, t.message, t.state from task_create_sdataset sd inner join task t on t.id = sd.id where t.state='waiting'";
+        String query = "SELECT t.id, t.message, t.state FROM task_create_sdataset sd INNER JOIN task t ON t.id = sd.id WHERE t.state='waiting'";
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 Statement st = connection.createStatement();
                 ResultSet rs = st.executeQuery(query)) {

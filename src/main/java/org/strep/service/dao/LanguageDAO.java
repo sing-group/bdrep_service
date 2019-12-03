@@ -36,7 +36,7 @@ public class LanguageDAO {
         ArrayList<Language> languages = new ArrayList<>();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("select * from taskcreateudataset_languages where task_id = ?")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM taskcreateudataset_languages WHERE task_id = ?")) {
             preparedStatement.setLong(1, id);
 
             ResultSet rs = preparedStatement.executeQuery();

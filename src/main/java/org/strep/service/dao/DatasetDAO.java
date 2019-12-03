@@ -41,7 +41,7 @@ public class DatasetDAO {
                 
             //PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from dataset where task_id=?");) {
             PreparedStatement preparedStatement = connection.prepareStatement(
-            "select dataset.name as dname from task,dataset where task.dataset_name=dataset.name and task.id=? and (task.id in (select id from task_create_sdataset) or task.id in (select id from task_create_udataset))"
+            "SELECT dataset.name AS dname FROM task,dataset WHERE task.dataset_name=dataset.name AND task.id=? AND (task.id IN (SELECT id FROM task_create_sdataset) OR task.id IN (SELECT id FROM task_create_udataset))"
             );){
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
@@ -91,7 +91,7 @@ public class DatasetDAO {
     public void setAvailable(String name, boolean available) {
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("update dataset set available=? where name=?");) {
+                PreparedStatement preparedStatement = connection.prepareStatement("UPDATE dataset SET available=? WHERE name=?");) {
             preparedStatement.setBoolean(1, available);
             preparedStatement.setString(2, name);
             preparedStatement.executeUpdate();

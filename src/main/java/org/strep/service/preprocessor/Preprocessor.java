@@ -349,6 +349,7 @@ public class Preprocessor {
             }
 
         });
+
         try{
             Configurator configurator = Configurator.getInstance(xmlPath);
 
@@ -367,7 +368,7 @@ public class Preprocessor {
             p.pipeAll(instances);
         }catch (RuntimeException e){
             taskDAO.changeState(e.getMessage(), "failed", task.getId());
-            
+            //e.printStackTrace();
             return success;
         }
 

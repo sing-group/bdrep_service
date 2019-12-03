@@ -11,9 +11,7 @@ import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 
 import org.strep.service.domain.Dataset;
-import org.strep.service.domain.Datatype;
 import org.strep.service.domain.File;
-import org.strep.service.domain.Language;
 import org.strep.service.domain.TaskCreateUdataset;
 
 /**
@@ -46,9 +44,9 @@ public class FileDAO {
         String type = file.getType();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into file(date, extension, language, path, type) values(?, ?, ?, ?, ?)",
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO file(date, extension, language, path, type) VALUES (?, ?, ?, ?, ?)",
                         Statement.RETURN_GENERATED_KEYS);
-                PreparedStatement preparedStatement2 = connection.prepareStatement("insert into dataset_files(dataset_name, file_id) values(?, ?)");) {
+                PreparedStatement preparedStatement2 = connection.prepareStatement("INSERT INTO dataset_files(dataset_name, file_id) VALUES (?, ?)");) {
             connection.setAutoCommit(false);
             if (date != null) {
                 preparedStatement.setDate(1, new java.sql.Date(date.getTime()));
@@ -104,8 +102,8 @@ public class FileDAO {
         String datasetName = dataset.getName();
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_files(dataset_name, file_id) values(?, ?)");
-                PreparedStatement preparedStatement2 = connection.prepareStatement("select * from file where id = ?")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dataset_files(dataset_name, file_id) VALUES (?, ?)");
+                PreparedStatement preparedStatement2 = connection.prepareStatement("SELECT * FROM file WHERE id = ?")) {
             preparedStatement.setString(1, datasetName);
             preparedStatement.setLong(2, id);
 
@@ -137,7 +135,7 @@ public class FileDAO {
     public ArrayList<File> getDatasetFiles(String datasetName) {
 
         ArrayList<File> datasetFiles = new ArrayList<>();
-        String query = "select date, extension, language, path, type from file f inner join dataset_files df on f.id=df.file_id where df.dataset_name=?";
+        String query = "SELECT date, extension, language, path, type FROM file f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name=?";
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement(query);) {
@@ -211,19 +209,19 @@ public class FileDAO {
             int necesaryHamEml = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageEml() / 100.00));
             int necesaryHamTwtid = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageTwtid() / 100.00));
             int necesaryHamTsms = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageTsms() / 100.00));
-            int necesaryHamTytb = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageTytb() / 100.00));
+            int necesaryHamYtbid = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageYtbid() / 100.00));
             int necesaryHamWarc = (int) Math.ceil((double) fileLimit * ((double) task.getLimitHamPercentageWarc() / 100.00));
 
             int necesarySpamEml = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageEml() / 100.00));
             int necesarySpamTwtid = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageTwtid() / 100.00));
             int necesarySpamTsms = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageTsms() / 100.00));
-            int necesarySpamTytb = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageTytb() / 100.00));
+            int necesarySpamYtbid = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageYtbid() / 100.00));
             int necesarySpamWarc = (int) Math.ceil((double) fileLimit * ((double) task.getLimitSpamPercentageWarc() / 100.00));
 
             String[] types = new String[]{"ham", "ham", "ham", "ham", "ham", "spam", "spam", "spam", "spam", "spam"};
-            String[] extensions = new String[]{".eml", ".twtid", ".tsms", ".tytb", ".warc", ".eml", ".twtid", ".tsms", ".tytb", ".warc"};
-            int[] necesaryFiles = new int[]{necesaryHamEml, necesaryHamTwtid, necesaryHamTsms, necesaryHamTytb, necesaryHamWarc, necesarySpamEml, necesarySpamTwtid,
-                necesarySpamTsms, necesarySpamTytb, necesarySpamWarc};
+            String[] extensions = new String[]{".eml", ".twtid", ".tsms", ".ytbid", ".warc", ".eml", ".twtid", ".tsms", ".ytbid", ".warc"};
+            int[] necesaryFiles = new int[]{necesaryHamEml, necesaryHamTwtid, necesaryHamTsms, necesaryHamYtbid, necesaryHamWarc, necesarySpamEml, necesarySpamTwtid,
+                necesarySpamTsms, necesarySpamYtbid, necesarySpamWarc};
 
             try (Connection connection = ConnectionPool.getDataSourceConnection();
                     PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -260,19 +258,19 @@ public class FileDAO {
         int necesaryHamEml = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageEml() / 100.00));
         int necesaryHamTwtid = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageTwtid() / 100.00));
         int necesaryHamTsms = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageTsms() / 100.00));
-        int necesaryHamTytb = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageTytb() / 100.00));
+        int necesaryHamYtbid = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageYtbid() / 100.00));
         int necesaryHamWarc = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitHamPercentageWarc() / 100.00));
 
         int necesarySpamEml = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageEml() / 100.00));
         int necesarySpamTwtid = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageTwtid() / 100.00));
         int necesarySpamTsms = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageTsms() / 100.00));
-        int necesarySpamTytb = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageTytb() / 100.00));
+        int necesarySpamYtbid = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageYtbid() / 100.00));
         int necesarySpamWarc = (int) Math.ceil((double) task.getLimitNumberOfFiles() * ((double) task.getLimitSpamPercentageWarc() / 100.00));
 
         String[] types = new String[]{"ham", "ham", "ham", "ham", "ham", "spam", "spam", "spam", "spam", "spam"};
-        String[] extensions = new String[]{".eml", ".twtid", ".tsms", ".tytb", ".warc", ".eml", ".twtid", ".tsms", ".tytb", ".warc"};
-        int[] necesaryFiles = new int[]{necesaryHamEml, necesaryHamTwtid, necesaryHamTsms, necesaryHamTytb, necesaryHamWarc, necesarySpamEml, necesarySpamTwtid,
-            necesarySpamTsms, necesarySpamTytb, necesarySpamWarc};
+        String[] extensions = new String[]{".eml", ".twtid", ".tsms", ".ytbid", ".warc", ".eml", ".twtid", ".tsms", ".ytbid", ".warc"};
+        int[] necesaryFiles = new int[]{necesaryHamEml, necesaryHamTwtid, necesaryHamTsms, necesaryHamYtbid, necesaryHamWarc, necesarySpamEml, necesarySpamTwtid,
+            necesarySpamTsms, necesarySpamYtbid, necesarySpamWarc};
 
         for (int i = 0; i < types.length; i++) {
             if (necesaryFiles[i] != 0 && !sufficientFiles(task, extensions[i], types[i], necesaryFiles[i])) {
@@ -324,35 +322,22 @@ public class FileDAO {
      */
     private String createQueryRandomFiles(TaskCreateUdataset task, boolean spamMode) {
         Long id = task.getId();
-        ArrayList<Language> languages = new ArrayList<>(task.getLanguages());
-        ArrayList<Datatype> datatypes = new ArrayList<>(task.getDatatypes());
 
-        Date dateFrom = task.getDateFrom();
-        Date dateTo = task.getDateTo();
-
-        String query = "select * from file "
-                + "f inner join dataset_files df on f.id=df.file_id where df.dataset_name in (select datasets.dataset "
-                + "from task_create_udataset task inner join task_create_udataset_datasets datasets on task.id=datasets.task_id where task.id=" + id + ") ";
-
-        if (!languages.isEmpty()) {
-            query += "and f.language in (select l.language from task_create_udataset t inner join taskcreateudataset_languages l on t.id=l.task_id where l.task_id=" + id + ") ";
-        }
-
-        if (!datatypes.isEmpty()) {
-            query += "and f.extension in(select d.datatype from task_create_udataset t inner join taskcreateudataset_datatypes d on t.id=d.task_id where d.task_id=" + id + ") ";
-        }
-
-        if (dateFrom != null && dateTo != null) {
-            query += "and f.date between (select date_from from task_create_udataset where id=" + id + ") and (select date_to from task_create_udataset where id=" + id + ")";
-        }
+        String query = "SELECT * FROM file "
+                + "f INNER JOIN dataset_files df ON f.id=df.file_id where df.dataset_name IN (SELECT datasets.dataset "
+                + "FROM task_create_udataset task INNER JOIN task_create_udataset_datasets datasets ON task.id=datasets.task_id WHERE task.id=" + id + ") "
+                + "AND f.language IN (SELECT l.language FROM task_create_udataset t INNER JOIN taskcreateudataset_languages l ON t.id=l.task_id WHERE l.task_id=" + id + ") "
+                + "AND f.extension IN (SELECT d.datatype FROM task_create_udataset t INNER JOIN taskcreateudataset_datatypes d ON t.id=d.task_id WHERE d.task_id=" + id + ") "
+                + "AND f.date >= (SELECT date_from FROM task_create_udataset WHERE id=" + id + ") AND f.date <= (SELECT date_to FROM task_create_udataset WHERE id=" + id + ") ";
 
         if (!spamMode) {
-            query += "and f.extension=? and f.type=? order by RAND() limit ?";
+            query += "AND f.extension=? AND f.type=? ORDER BY RAND() LIMIT ?";
         } else {
-            query += "and f.type=? order by RAND() limit ?";
+            query += "AND f.type=? ORDER BY RAND() LIMIT ?";
         }
 
         System.out.println(query);
+
         return query;
     }
 
@@ -367,32 +352,18 @@ public class FileDAO {
      */
     private String createQuery(TaskCreateUdataset task, String extension, String type, int necesary) {
         Long id = task.getId();
-        ArrayList<Language> languages = new ArrayList<>(task.getLanguages());
-        ArrayList<Datatype> datatypes = new ArrayList<>(task.getDatatypes());
 
-        Date dateFrom = task.getDateFrom();
-        Date dateTo = task.getDateTo();
+        String query = "SELECT f.extension, f.type, count(*) AS count FROM file "
+                + "f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name IN (SELECT datasets.dataset "
+                + "FROM task_create_udataset task INNER JOIN task_create_udataset_datasets datasets ON task.id=datasets.task_id WHERE task.id=" + id + ") "
+                + "AND f.language IN (SELECT l.language FROM task_create_udataset t INNER JOIN taskcreateudataset_languages l ON t.id=l.task_id WHERE l.task_id=" + id + ") "
+                + "AND f.extension IN (SELECT d.datatype FROM task_create_udataset t INNER JOIN taskcreateudataset_datatypes d ON t.id=d.task_id WHERE d.task_id=" + id + ") "
+                + "AND f.date >= (SELECT date_from FROM task_create_udataset WHERE id=" + id + ") AND f.date <= (SELECT date_to FROM task_create_udataset WHERE id=" + id + ") "
+                + "GROUP BY f.extension, f.type HAVING (f.extension=? AND f.type=? AND count>=?)";
 
-        String query = "select f.extension, f.type, count(*) as count from file "
-                + "f inner join dataset_files df on f.id=df.file_id where df.dataset_name in (select datasets.dataset "
-                + "from task_create_udataset task inner join task_create_udataset_datasets datasets on task.id=datasets.task_id where task.id=" + id + ") ";
-
-        if (!languages.isEmpty()) {
-            query += "and f.language in (select l.language from task_create_udataset t inner join taskcreateudataset_languages l on t.id=l.task_id where l.task_id=" + id + ") ";
-        }
-
-        if (!datatypes.isEmpty()) {
-            query += "and f.extension in(select d.datatype from task_create_udataset t inner join taskcreateudataset_datatypes d on t.id=d.task_id where d.task_id=" + id + ") ";
-        }
-
-        if (dateFrom != null && dateTo != null) {
-            query += "and f.date between (select date_from from task_create_udataset where id=" + id + ") and (select date_to from task_create_udataset where id=" + id + ")";
-        }
-
-        query += "group by f.extension, f.type having (f.extension=? and f.type=? and count>=?)";
+        System.out.println(query);
 
         return query;
-
     }
 
     /**
@@ -402,11 +373,9 @@ public class FileDAO {
      * @param language the language
      */
     private void insertLanguageFile(String datasetName, String language) {
-        System.out.println("----------------------------------------------------------------");
         System.out.println(language);
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO dataset_languages(dataset_name, language) VALUES (?, ?)");) {
-                //PreparedStatement preparedStatement = connection.prepareStatement("insert into dataset_languages(dataset_name, language) values(?, ?)");) {
             preparedStatement.setString(1, datasetName);
             preparedStatement.setString(2, language);
 
@@ -423,7 +392,6 @@ public class FileDAO {
      * @param datatype the datatype
      */
     private void insertDatatypeFile(String datasetName, String datatype) {
-        System.out.println("----------------------------------------------------------------");
         System.out.println(datatype);
         try (Connection connection = ConnectionPool.getDataSourceConnection();
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO dataset_datatypes(dataset_name, data_type) VALUES (?, ?)")) {
