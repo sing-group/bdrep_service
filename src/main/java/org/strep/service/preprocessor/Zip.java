@@ -111,8 +111,8 @@ public class Zip
             {
                 zipFile.close();
                 success = false;
-                message="The provided zip file ("+path+") does not have a right format.";
-                System.out.println("The provided zip file ("+path+") does not have a rigth format.");
+                message="The provided zip file ("+path.replaceAll("\\/\\/","/")+") does not have a right format.";
+                System.out.println("The provided zip file ("+path.replaceAll("\\/\\/","/")+") does not have a rigth format.");
                 return success;
             }  
 
@@ -120,15 +120,15 @@ public class Zip
         }
         catch(ZipException ze)
         {
-            message="Zip exception when uncompressing zip file "+path+" to "+destPath+": "+ze.getMessage();
-            System.out.println("Zip exception when uncompressing zip file "+path+" to "+destPath+": "+ze.getMessage());
+            message="Zip exception when uncompressing zip file "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ze.getMessage();
+            System.out.println("Zip exception when uncompressing zip file "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ze.getMessage());
             success = false; 
             return success;
         }
         catch(IOException ioE)
         {
-            message="I/O exception when uncompressing zip file "+path+" to "+destPath+": "+ioE.getMessage();
-            System.out.println("I/O exception when uncompressing zip file "+path+" to "+destPath+": "+ioE.getMessage());
+            message="I/O exception when uncompressing zip file "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ioE.getMessage();
+            System.out.println("I/O exception when uncompressing zip file "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ioE.getMessage());
             success = false;
             return success;
         }
@@ -147,16 +147,6 @@ public class Zip
             ZipInputStream zis = new ZipInputStream(fis);
             ZipEntry zipEntry = zis.getNextEntry();
 
-             // This code is neccessary to windows compressed files
-            File fileHam = new File(destPath + File.separator + "_ham_" + File.separator);
-            if (!fileHam.exists()) {
-                fileHam.mkdir();
-            }
-            File fileSpam = new File(destPath + File.separator + "_spam_" + File.separator);
-            if (!fileSpam.exists()) {
-                fileSpam.mkdir();
-            }
-            
             while(zipEntry!=null)
             {
                 if (!zipEntry.getName().startsWith("_ham_"+File.separator) && !zipEntry.getName().startsWith("_spam_"+File.separator)) {
@@ -177,6 +167,8 @@ public class Zip
                 else
                 {
                     File newFile = new File(destPath + File.separator + zipEntry.getName());
+                    //Create parent directories if not exist
+                    newFile.getParentFile().mkdirs();
                     FileOutputStream fos = new FileOutputStream(newFile);
 
                     int len;
@@ -196,15 +188,15 @@ public class Zip
         }
         catch(FileNotFoundException fnfException)
         {
-            message="File not found error when uncompressing "+path+" to "+destPath+": "+fnfException.getMessage();
-            System.out.println("File not found error when uncompressing "+path+" to "+destPath+": "+fnfException.getMessage());
+            message="File not found error when uncompressing "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+fnfException.getMessage();
+            System.out.println("File not found error when uncompressing "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+fnfException.getMessage());
             success = false;
             return success;
         }
         catch(IOException ioException)
         {
-            message="I/O error when uncompressing: "+path+" to "+destPath+": "+ioException.getMessage();
-            System.out.println("I/O error when uncompressing: "+path+" to "+destPath+": "+ioException.getMessage());
+            message="I/O error when uncompressing: "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ioException.getMessage();
+            System.out.println("I/O error when uncompressing: "+path.replaceAll("\\/\\/","/")+" to "+destPath.replaceAll("\\/\\/","/")+": "+ioException.getMessage());
 
             success = false;
             return success;
@@ -241,10 +233,11 @@ public class Zip
         {
             ZipEntry ze = (ZipEntry) zipEntries.nextElement();
             String entryName = ze.getName();
+            String check=entryName.replaceAll("(?<=\\/).*$","");
 
-            if(necesaryEntries.contains(entryName))
+            if(necesaryEntries.contains(check))
             {
-                necesaryEntries.remove(entryName);
+                necesaryEntries.remove(check);
             }
             /*
             else if(!entryName.startsWith("_ham_"+File.separator) && !entryName.startsWith("_spam_"+File.separator))
@@ -254,7 +247,7 @@ public class Zip
             }*/
         }
 
-        if(!necesaryEntries.isEmpty() && !(necesaryEntries.contains("_ham_"+File.separator) && necesaryEntries.contains("_spam_"+File.separator)))
+        if(!necesaryEntries.isEmpty())
         {
             success = false;
         }
