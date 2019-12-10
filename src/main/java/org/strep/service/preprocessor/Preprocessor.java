@@ -34,8 +34,6 @@ import org.bdp4j.util.PipeInfo;
 import org.bdp4j.util.PipeProvider;
 import org.strep.service.dao.DatasetDAO;
 import org.strep.service.dao.FileDAO;
-//import org.strep.service.dao.TaskCreateUPreprocessingDAO;
-import org.strep.service.dao.TaskCreateUdatasetDAO;
 import org.strep.service.dao.TaskDAO;
 import org.strep.service.domain.TaskCreateSdataset;
 import org.strep.service.domain.TaskCreateUPreprocessing;
@@ -48,6 +46,8 @@ import org.nlpa.pipe.impl.TargetAssigningFromPathPipe;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import de.scravy.pair.Pair;
 
 /**
  * Class for perform system, user and preprocessing tasks
@@ -150,12 +150,11 @@ public class Preprocessor {
                 }
             }
 
-            ArrayList<org.strep.service.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
-
-            int percentageSpam = this.calculatePercentage(datasetFiles);
+            int percentageSpam = fileDAO.computeSpamPercentage(datasetName).intValue();
             int percentageHam = 100 - percentageSpam;
-            Date dateFrom = this.calculateDateFrom(datasetFiles);
-            Date dateTo = this.calculateDateTo(datasetFiles);
+            Pair<Date,Date> d=fileDAO.getDatasetEagestAndOldestDate(datasetName);
+            Date dateFrom = d.getFirst();
+            Date dateTo = d.getSecond();
 
             datasetDAO.completeFields(datasetName, percentageHam, percentageSpam, dateFrom, dateTo);
 
@@ -189,8 +188,6 @@ public class Preprocessor {
         DatasetDAO datasetDAO = new DatasetDAO();
         TaskDAO taskDAO = new TaskDAO();
         FileDAO fileDAO = new FileDAO();
-
-        TaskCreateUdatasetDAO taskCreateUdatasetDAO = new TaskCreateUdatasetDAO();
 
         if (fileDAO.posibleAfterFilters(task)) {
             ArrayList<org.strep.service.domain.File> files = fileDAO.getRandomFiles(task,
@@ -247,23 +244,25 @@ public class Preprocessor {
 
             Zip.zip(newDirectory.getAbsolutePath());
 
-            ArrayList<org.strep.service.domain.File> datasetFiles = fileDAO.getDatasetFiles(datasetName);
-
-            int percentageSpam = this.calculatePercentage(datasetFiles);
+            int percentageSpam = fileDAO.computeSpamPercentage(datasetName).intValue();
+            
             int percentageHam = 100 - percentageSpam;
-            System.out.println("PERCENTAGE SPAM" + percentageSpam);
-            System.out.println("PERCENTAGE HAM" + percentageHam);
-            Date dateFrom = this.calculateDateFrom(datasetFiles);
-            Date dateTo = this.calculateDateTo(datasetFiles);
+            Pair<Date,Date> d=fileDAO.getDatasetEagestAndOldestDate(datasetName);
+            Date dateFrom = d.getFirst();
+            Date dateTo=d.getSecond();
 
             datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
-            taskCreateUdatasetDAO.stablishLicense(task);
+
             taskDAO.changeState(null, "success", task.getId());
+
+            /*
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
                 logger.warn("[ERROR]: " + e.getMessage());
             }
+            */
+
             datasetDAO.setAvailable(task.getDataset().getName(), true);
         } else {
             taskDAO.changeState("Not posible after filters", "failed", task.getId());
@@ -374,7 +373,7 @@ public class Preprocessor {
 
         resetInstances();
         //TODO: no tiene porque ser output.csv a menos que andemos urgando. 
-        //comprobar que es output.csv.m
+        //comprobar que es output.csv
         File csv = new File(outputStorage + "output.csv");
 
         if (csv.renameTo(new File(outputStorage + task.getPreprocessDataset().getName() + task.getId() + ".csv"))) {
@@ -457,67 +456,6 @@ public class Preprocessor {
             logger.warn("[ERROR]: " + npException.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Calculate percentage of spam for the specified files
-     *
-     * @param datasetFiles the files of the dataset
-     * @return the percentage of spam
-     */
-    private int calculatePercentage(ArrayList<org.strep.service.domain.File> datasetFiles) {
-        int total = datasetFiles.size();
-        int spamFiles = 0;
-        int spamPercentage = 0;
-
-        spamFiles = datasetFiles.stream().filter((file) -> (file.getType().equals("spam"))).map((_item) -> 1).reduce(spamFiles, Integer::sum);
-
-        spamPercentage = (int) Math.ceil((double) spamFiles * 100.00 / (double) total);
-
-        return spamPercentage;
-    }
-
-    /**
-     * Calculate initial messages date
-     *
-     * @param datasetFiles the dataset files
-     * @return the initial messages date
-     */
-    private Date calculateDateFrom(ArrayList<org.strep.service.domain.File> datasetFiles) {
-        Date actualDate = new Date(Long.MAX_VALUE);
-
-        for (org.strep.service.domain.File file : datasetFiles) {
-            if (file.getDate() != null && file.getDate().compareTo(actualDate) < 0) {
-                actualDate = file.getDate();
-            }
-        }
-
-        if (actualDate.equals(new Date(Long.MAX_VALUE))) {
-            actualDate = null;
-        }
-
-        return actualDate;
-    }
-
-    /**
-     * Calculate final messages date
-     *
-     * @param datasetFiles the dataset files
-     * @return the final messages date
-     */
-    private Date calculateDateTo(ArrayList<org.strep.service.domain.File> datasetFiles) {
-        Date actualDate = new Date(Long.MIN_VALUE);
-
-        for (org.strep.service.domain.File file : datasetFiles) {
-            if (file.getDate() != null && file.getDate().compareTo(actualDate) > 0) {
-                actualDate = file.getDate();
-            }
-        }
-        if (actualDate.equals(new Date(Long.MIN_VALUE))) {
-            actualDate = null;
-        }
-
-        return actualDate;
     }
 
     /**

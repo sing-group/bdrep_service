@@ -104,44 +104,4 @@ public class TaskCreateUdatasetDAO {
         return waitingUtasks;
     }
 
-    /**
-     * Stablish the license of the specified user task
-     *
-     * @param task the task to stablish the license
-     */
-    public void stablishLicense(TaskCreateUdataset task) {
-        String query = "SELECT l.name, l.restriction_level FROM license l INNER JOIN dataset d ON l.name=d.id "
-                + "WHERE d.name IN (SELECT dt.dataset FROM task_create_udataset t INNER JOIN task_create_udataset_datasets dt ON dt.task_id=t.id WHERE t.id=?)";
-
-        //String updateQuery = "update dataset set id=? where task_id=?";
-        String updateQuery = "UPDATE dataset SET id=? WHERE name IN (SELECT dataset_name FROM task WHERE id=?)";
-
-        try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement(query);
-                PreparedStatement preparedStatementUpdate = connection.prepareStatement(updateQuery)) {
-            preparedStatement.setLong(1, task.getId());
-
-            ResultSet rs = preparedStatement.executeQuery();
-            int minRestrictionLevel = 1;
-            String license = "Public domain";
-
-            while (rs.next()) {
-                int actual = rs.getInt(2);
-
-                if (actual > minRestrictionLevel) {
-                    license = rs.getString(1);
-                }
-            }
-
-            preparedStatementUpdate.setString(1, license);
-            preparedStatementUpdate.setLong(2, task.getId());
-
-            preparedStatementUpdate.executeUpdate();
-            
-        } catch (SQLException sqlException) {
-            logger.warn("[ERROR stablishLicense]: " + sqlException.getMessage());
-        }
-
-    }
-
 }

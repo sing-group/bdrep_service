@@ -7,12 +7,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
+
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
-
 import org.strep.service.domain.Dataset;
 import org.strep.service.domain.File;
 import org.strep.service.domain.TaskCreateUdataset;
+
+import de.scravy.pair.Pair;
+import de.scravy.pair.Pairs;
 
 /**
  * Data access object for File
@@ -158,6 +161,62 @@ public class FileDAO {
         }
 
         return datasetFiles;
+    }
+
+    /**
+     * Return the dates of the eagest and oldest files
+     * @param datasetName The name of the dataset
+     * @return the dates of the eagest and oldest files
+     */
+    public Pair<Date, Date> getDatasetEagestAndOldestDate(String datasetName){
+        String query = "SELECT min(date) as min, max(date) as max FROM file f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name=?";
+        Pair<Date, Date> retVal=null;
+
+        try (Connection connection = ConnectionPool.getDataSourceConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            preparedStatement.setString(1, datasetName);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                Date d1=rs.getDate(1);
+                if (rs.wasNull()) d1=new Date(Long.MIN_VALUE);
+
+                Date d2=rs.getDate(2);
+                if (rs.wasNull()) d2=new Date();
+                retVal=Pairs.from(d1, d2);
+            }
+        } catch (SQLException sqlException) {
+            logger.warn("[ERROR getDatasetEagestAndOldestDate]: " + sqlException.getMessage());
+        }
+
+        return retVal;
+    }
+
+    /**
+     * Compute spam percentage of a dataset
+     * @param datasetName
+     * @return The spam percentage
+     */
+    public Double computeSpamPercentage(String datasetName){
+        String query = "SELECT COUNT(CASE type WHEN 'spam' THEN 1 ELSE NULL END)/COUNT(1) as spampercentage FROM file f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name=?";
+        Double retVal=null;
+
+        try (Connection connection = ConnectionPool.getDataSourceConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);) {
+            preparedStatement.setString(1, datasetName);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                retVal=rs.getDouble(1);
+                if (rs.wasNull()) retVal=0d;
+            }
+        } catch (SQLException sqlException) {
+            logger.warn("[ERROR computeSpamPercentage]: " + sqlException.getMessage());
+        }
+
+        return retVal;
     }
 
     /**
