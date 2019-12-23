@@ -199,7 +199,7 @@ public class FileDAO {
      * @return The spam percentage
      */
     public Double computeSpamPercentage(String datasetName){
-        String query = "SELECT COUNT(CASE type WHEN 'spam' THEN 1 ELSE NULL END)/COUNT(1) as spampercentage FROM file f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name=?";
+        String query = "SELECT (COUNT(CASE type WHEN 'spam' THEN 1 ELSE NULL END)/COUNT(1))*100 as spampercentage FROM file f INNER JOIN dataset_files df ON f.id=df.file_id WHERE df.dataset_name=?";
         Double retVal=null;
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
@@ -208,7 +208,7 @@ public class FileDAO {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            while (rs.next()) {
+            while (rs.next()) { 
                 retVal=rs.getDouble(1);
                 if (rs.wasNull()) retVal=0d;
             }
