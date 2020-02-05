@@ -362,6 +362,11 @@ public class Preprocessor {
 
             Pipe p = configurator.configurePipeline(pipes);
 
+            if (!p.checkDependencies()) {
+                taskDAO.changeState("Pipe dependencies are not satisfied: "+AbstractPipe.getErrorMessage(), "failed", task.getId());
+                return success;
+            }           
+
             generateInstances(configurator.getProp(Configurator.SAMPLES_FOLDER));
 
             p.pipeAll(instances);
