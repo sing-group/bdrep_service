@@ -33,7 +33,7 @@ public class TaskDAO {
         Task task = null;
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
-                PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM task where id=?")) {
+                PreparedStatement preparedStatement = connection.prepareStatement("SELECT id, message, state FROM task where id=?")) {
             preparedStatement.setLong(1, id);
             ResultSet rs = preparedStatement.executeQuery();
 
