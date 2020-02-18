@@ -109,7 +109,7 @@ public class DatasetDAO {
      * @param dateFrom the initial date of the messages of the dataset
      * @param dateTo the final date of the messages of the dataset
      */
-    public void completeFields(String datasetName, int spamPercentage, int hamPercentage, Date dateFrom, Date dateTo) {
+    public String completeFields(String datasetName, int spamPercentage, int hamPercentage, Date dateFrom, Date dateTo) {
 
         try (Connection connection = ConnectionPool.getDataSourceConnection();
                 PreparedStatement preparedStatement = connection.prepareStatement("update dataset set spam_percentage = ?, ham_percentage = ?, first_file_date = ?, last_file_date = ? where name = ?")) {
@@ -126,8 +126,10 @@ public class DatasetDAO {
 
             preparedStatement.setString(5, datasetName);
             preparedStatement.executeUpdate();
+            return null;
         } catch (SQLException sqlException) {
             logger.warn("[ERROR completeFields]: " + sqlException.getMessage());
+            return sqlException.getMessage();
         }
     }
 }

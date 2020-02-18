@@ -152,14 +152,21 @@ public class Preprocessor {
 
             int percentageSpam = fileDAO.computeSpamPercentage(datasetName).intValue();
             int percentageHam = 100 - percentageSpam;
-            Pair<Date,Date> d=fileDAO.getDatasetEagestAndOldestDate(datasetName);
+            Pair<Date, Date> d = fileDAO.getDatasetEagestAndOldestDate(datasetName);
             Date dateFrom = d.getFirst();
             Date dateTo = d.getSecond();
 
-            datasetDAO.completeFields(datasetName, percentageHam, percentageSpam, dateFrom, dateTo);
+            String completedFieldsError = datasetDAO.completeFields(datasetName, percentageHam, percentageSpam, dateFrom, dateTo);
 
-            Zip.zip(pathDest);
-            taskDAO.changeState(null, "success", task.getId());
+            if (completedFieldsError == null) {
+                taskDAO.changeState(null, "success", task.getId());
+                Zip.zip(pathDest);
+            } else {
+                taskDAO.changeState(completedFieldsError, "failed", task.getId());
+            }
+
+            
+            //taskDAO.changeState(null, "success", task.getId());
             try {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
@@ -167,7 +174,8 @@ public class Preprocessor {
             }
             datasetDAO.setAvailable(datasetName, true);
         } else {
-            taskDAO.changeState("Failed to uncompress the dataset. Input path: " + pathToDataset + " Output path: " + pathDest + ". Reason: " + Zip.getErrorMessage(), "failed", task.getId());
+            taskDAO.changeState("Failed to uncompress the dataset. Input path: " + pathToDataset + " Output path: "
+                    + pathDest + ". Reason: " + Zip.getErrorMessage(), "failed", task.getId());
             Zip.delete(pathToDataset);
         }
 
@@ -190,8 +198,7 @@ public class Preprocessor {
         FileDAO fileDAO = new FileDAO();
 
         if (fileDAO.posibleAfterFilters(task)) {
-            ArrayList<org.strep.service.domain.File> files = fileDAO.getRandomFiles(task,
-                    task.getSpamMode());
+            ArrayList<org.strep.service.domain.File> files = fileDAO.getRandomFiles(task, task.getSpamMode());
 
             ArrayList<org.strep.service.domain.File> spamFiles = new ArrayList<org.strep.service.domain.File>();
             ArrayList<org.strep.service.domain.File> hamFiles = new ArrayList<org.strep.service.domain.File>();
@@ -245,23 +252,23 @@ public class Preprocessor {
             Zip.zip(newDirectory.getAbsolutePath());
 
             int percentageSpam = fileDAO.computeSpamPercentage(datasetName).intValue();
-            
+
             int percentageHam = 100 - percentageSpam;
-            Pair<Date,Date> d=fileDAO.getDatasetEagestAndOldestDate(datasetName);
+            Pair<Date, Date> d = fileDAO.getDatasetEagestAndOldestDate(datasetName);
             Date dateFrom = d.getFirst();
-            Date dateTo=d.getSecond();
+            Date dateTo = d.getSecond();
 
-            datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
-
-            taskDAO.changeState(null, "success", task.getId());
+            String completedFieldsError = datasetDAO.completeFields(datasetName, percentageSpam, percentageHam, dateFrom, dateTo);
+            if (completedFieldsError == null) {
+                taskDAO.changeState(null, "success", task.getId());
+            } else {
+                taskDAO.changeState(completedFieldsError, "failed", task.getId());
+            }
 
             /*
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                logger.warn("[ERROR]: " + e.getMessage());
-            }
-            */
+             * try { Thread.sleep(1000); } catch (InterruptedException e) {
+             * logger.warn("[ERROR]: " + e.getMessage()); }
+             */
 
             datasetDAO.setAvailable(task.getDataset().getName(), true);
         } else {
@@ -340,7 +347,7 @@ public class Preprocessor {
             logger.warn("[ERROR]: " + e.getMessage());
         }
 
-        Configurator.setActionOnIrrecoverableError(new Runnable(){
+        Configurator.setActionOnIrrecoverableError(new Runnable() {
 
             @Override
             public void run() {
@@ -349,8 +356,9 @@ public class Preprocessor {
 
         });
 
-        try{
+        try {
             Configurator configurator = Configurator.getInstance(xmlPath);
+            System.out.println("xmlPath " + xmlPath);
 
             configurator.configureApp();
 
@@ -371,19 +379,20 @@ public class Preprocessor {
 
             p.pipeAll(instances);
         }catch (RuntimeException e){
-            taskDAO.changeState(e.getMessage(), "failed", task.getId());
-            //e.printStackTrace();
+        } catch (RuntimeException e) {
+            taskDAO.changeState(e.getMessage() + " - Runtime exception on preprocessDataset.", "failed", task.getId());
+            // e.printStackTrace();
             return success;
         }
 
         resetInstances();
-        //TODO: no tiene porque ser output.csv a menos que andemos urgando. 
-        //comprobar que es output.csv
+        // TODO: no tiene porque ser output.csv a menos que andemos urgando.
+        // comprobar que es output.csv
         File csv = new File(outputStorage + "output.csv");
 
         if (csv.renameTo(new File(outputStorage + task.getPreprocessDataset().getName() + task.getId() + ".csv"))) {
             taskDAO.changeState(null, "success", task.getId());
-            success=true;
+            success = true;
         } else {
             taskDAO.changeState("No CSV output file was found.", "failed", task.getId());
         }
@@ -412,8 +421,8 @@ public class Preprocessor {
     }
 
     /**
-     * Generate a instance List on instances attribute by recursivelly finding
-     * all files included in testDir directory
+     * Generate a instance List on instances attribute by recursivelly finding all
+     * files included in testDir directory
      *
      * @param testDir The directory where the instances should be loaded
      */
