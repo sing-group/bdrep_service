@@ -378,7 +378,6 @@ public class Preprocessor {
             generateInstances(configurator.getProp(Configurator.SAMPLES_FOLDER));
 
             p.pipeAll(instances);
-        }catch (RuntimeException e){
         } catch (RuntimeException e) {
             taskDAO.changeState(e.getMessage() + " - Runtime exception on preprocessDataset.", "failed", task.getId());
             // e.printStackTrace();
